@@ -1,14 +1,14 @@
 from pathlib import Path
 
-DATA_DIR = Path.home() / ".local" / "share" / "utube"
-CONFIG_DIR = Path.home() / ".config" / "utube"
+DATA_DIR = Path.home() / ".local" / "share" / "youplumber"
+CONFIG_DIR = Path.home() / ".config" / "youplumber"
 DB_PATH = DATA_DIR / "library.db"
 DOWNLOADS_DIR = DATA_DIR / "downloads"
 STAGING_DIR = DATA_DIR / "staging"
 CONFIG_PATH = CONFIG_DIR / "config.toml"
 
 DEFAULT_CONFIG = """\
-# utube configuration
+# youplumber configuration
 [downloads]
 output_dir = "{downloads}"
 format = "bestaudio/best"

@@ -16,7 +16,7 @@ from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4
 from mutagen.oggvorbis import OggVorbis
 
-log = logging.getLogger("utube.audio")
+log = logging.getLogger("youplumber.audio")
 
 CAMELOT_TO_MUSICAL = {
     # Camelot -> musical key (used to suggest the reverse)

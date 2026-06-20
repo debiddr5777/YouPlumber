@@ -1,4 +1,4 @@
-"""SQLite database layer for utube library tracking."""
+"""SQLite database layer for YouPlumber library tracking."""
 from __future__ import annotations
 
 import sqlite3

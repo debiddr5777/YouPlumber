@@ -12,7 +12,7 @@ import yt_dlp
 
 from . import config, db
 
-log = logging.getLogger("utube.downloader")
+log = logging.getLogger("youplumber.downloader")
 
 CODEC_MAP = {
     "mp3":  ("mp3",      "mp3"),

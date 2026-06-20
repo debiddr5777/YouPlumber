@@ -1,4 +1,4 @@
-"""FastAPI web server for utube."""
+"""FastAPI web server for YouPlumber."""
 from __future__ import annotations
 
 import asyncio
@@ -20,7 +20,7 @@ from .. import sources
 from ..finalize import finalize as do_finalize
 from ..downloader import DownloadQueue, ProgressReporter
 
-log = logging.getLogger("utube.web")
+log = logging.getLogger("youplumber.web")
 
 # ---------- global state ----------
 
@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI):
         _download_queue.stop()
 
 
-app = FastAPI(title="utube", docs_url="/api/docs", lifespan=lifespan)
+app = FastAPI(title="YouPlumber", docs_url="/api/docs", lifespan=lifespan)
 
 
 # ---------- Pydantic models ----------

@@ -1,4 +1,4 @@
-"""utube CLI — fast mass YouTube audio acquisition."""
+"""YouPlumber CLI — fast mass YouTube audio acquisition."""
 from __future__ import annotations
 
 import json
@@ -32,7 +32,7 @@ def _ctx_setup() -> tuple[dict, "sqlite3.Connection"]:  # type: ignore[name-defi
 # ----------------------------- add / sync -----------------------------
 
 @click.group()
-@click.version_option(__version__, prog_name="utube")
+@click.version_option(__version__, prog_name="youplumber")
 def main() -> None:
     """Fast mass YouTube audio acquisition for DJs."""
 
@@ -204,7 +204,7 @@ def download(workers: int | None, watch: bool) -> None:
         "SELECT COUNT(*) c FROM tracks WHERE status='queued'"
     ).fetchone()["c"]
     if not total:
-        console.print("[yellow]Nothing queued.[/yellow] Use `utube queue …` first.")
+        console.print("[yellow]Nothing queued.[/yellow] Use `youplumber queue …` first.")
         return
 
     console.print(f"[bold cyan]Starting downloads:[/bold cyan] {total} tracks, "
@@ -379,7 +379,7 @@ def show_config() -> None:
 @click.option("--bitrate", default=None, help="MP3 bitrate (e.g. 320).")
 def config_cmd(concurrent_jobs: int | None, codec: str | None,
                bitrate: str | None) -> None:
-    """Update settings in ~/.config/utube/config.toml."""
+    """Update settings in ~/.config/youplumber/config.toml."""
     cfg, _ = _ctx_setup()
     changed = False
     if concurrent_jobs is not None:
@@ -419,7 +419,7 @@ def doctor() -> None:
     checks.append(("Downloads dir", "OK" if config.DOWNLOADS_DIR.exists() else "MISSING",
                    str(config.DOWNLOADS_DIR)))
 
-    table = Table(title="utube doctor")
+    table = Table(title="youplumber doctor")
     table.add_column("Check")
     table.add_column("Status")
     table.add_column("Detail")
@@ -443,7 +443,7 @@ def serve(host: str, port: int, open: bool) -> None:
     url = f"http://{host}:{port}"
     if open:
         webbrowser.open(url)
-    console.print(f"[bold cyan]utube web UI[/bold cyan] → {url}")
+    console.print(f"[bold cyan]YouPlumber web UI[/bold cyan] → {url}")
     console.print("[dim]Press Ctrl+C to stop[/dim]")
     uvicorn.run(app, host=host, port=port, log_level="info")
 
