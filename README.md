@@ -73,16 +73,16 @@ to the browser every 300ms.
 
 <table>
   <tr>
-    <td width="50%"><img src="screenshot-empty.png" alt="Empty state" width="100%"></td>
-    <td width="50%"><img src="screenshot-fetched.png" alt="Results after fetch" width="100%"></td>
+    <td width="50%"><img src="assets/screenshot-empty.png" alt="Empty state" width="100%"></td>
+    <td width="50%"><img src="assets/screenshot-fetched.png" alt="Results after fetch" width="100%"></td>
   </tr>
   <tr>
     <td align="center"><em>1. Paste a link → click Fetch</em></td>
     <td align="center"><em>2. Tick tracks you want</em></td>
   </tr>
   <tr>
-    <td width="50%"><img src="screenshot-queued.png" alt="Queue populated" width="100%"></td>
-    <td width="50%"><img src="screenshot-downloading.png" alt="Active downloads" width="100%"></td>
+    <td width="50%"><img src="assets/screenshot-queued.png" alt="Queue populated" width="100%"></td>
+    <td width="50%"><img src="assets/screenshot-downloading.png" alt="Active downloads" width="100%"></td>
   </tr>
   <tr>
     <td align="center"><em>3. Add to Queue</em></td>
