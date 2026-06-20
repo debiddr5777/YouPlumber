@@ -100,6 +100,7 @@ The web UI runs at `http://localhost:8652` — paste a URL, tick tracks, and dow
 # 1. Install ffmpeg (required for audio conversion)
 sudo apt install ffmpeg          # Debian/Ubuntu
 brew install ffmpeg              # macOS
+winget install ffmpeg            # Windows (or: choco install ffmpeg)
 
 # 2. Install YouPlumber
 git clone https://github.com/debiddr5777/YouPlumber.git
@@ -195,12 +196,15 @@ yp config --concurrent-jobs 8 --codec flac --bitrate 320
 
 ## 🗄️ Data Layout
 
-```
-~/.config/youplumber/config.toml          # Settings
-~/.local/share/youplumber/library.db      # SQLite database (tracks, sources, jobs)
-```
+Configuration and database locations differ by platform:
 
-Downloaded files land in your configured `output_dir` (default `~/music/`).
+| Platform | Config | Database |
+|----------|--------|----------|
+| **Linux** | `~/.config/youplumber/config.toml` | `~/.local/share/youplumber/library.db` |
+| **macOS** | `~/.config/youplumber/config.toml` | `~/.local/share/youplumber/library.db` |
+| **Windows** | `%APPDATA%\youplumber\config.toml` | `%LOCALAPPDATA%\youplumber\library.db` |
+
+Downloaded files land in your configured `output_dir` (default `~/Music/YouPlumber` on macOS/Linux, `%USERPROFILE%\Music\YouPlumber` on Windows).
 
 ---
 

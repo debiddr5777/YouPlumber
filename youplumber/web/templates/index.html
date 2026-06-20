@@ -239,7 +239,7 @@ function syncRecent(){
   document.getElementById('recent-empty').classList.toggle('hidden',!!r.length);
   document.getElementById('recent-list').innerHTML=r.length?r.map(function(t){
     var dur=t.duration?Math.floor(t.duration/60)+':'+(t.duration%60<10?'0':'')+t.duration%60:'?';
-    var fp=t.file_path||'',fn=fp.split('/').pop()||'';
+    var fp=t.file_path||'',fn=fp.replace(/\\/g,'/').split('/').pop()||'';
     return '<div class="flex items-center gap-2 p-2 rounded-lg bg-dark-700/30 box-hover"><div class="flex-1 min-w-0"><div class="text-xs truncate font-medium">'+esc((t.title||'').slice(0,40))+'</div><div class="text-[10px] text-gray-500">'+esc(t.uploader||'')+' &middot; '+dur+'</div>'+(fp?'<div class="file-link text-[10px] truncate" onclick="openFile('+t.id+')"><i class="fas fa-folder-open mr-0.5"></i>'+esc(fn)+'</div>':'')+'</div><span class="tag tag-done flex-shrink-0">done</span></div>';
   }).join(''):'';
 }

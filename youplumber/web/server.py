@@ -370,7 +370,7 @@ async def ws_progress(websocket: WebSocket):
 @app.get("/api/tracks/{track_id}/open")
 async def open_track_file(track_id: int):
     """Open the downloaded file in the OS file manager."""
-    import subprocess
+    import subprocess, sys as _sys
     conn = _get_conn()
     r = conn.execute("SELECT file_path FROM tracks WHERE id=?", (track_id,)).fetchone()
     if not r or not r["file_path"]:
@@ -378,7 +378,13 @@ async def open_track_file(track_id: int):
     p = Path(r["file_path"])
     if not p.exists():
         raise HTTPException(404, f"File not found: {p}")
-    subprocess.Popen(["xdg-open", str(p.parent)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    plat = _sys.platform
+    if plat == "win32":
+        subprocess.Popen(["explorer", "/select,", str(p)], shell=True)
+    elif plat == "darwin":
+        subprocess.Popen(["open", str(p.parent)])
+    else:
+        subprocess.Popen(["xdg-open", str(p.parent)])
     return {"opened": str(p.parent)}
 
 

@@ -1,7 +1,16 @@
+import os
+import sys
 from pathlib import Path
 
-DATA_DIR = Path.home() / ".local" / "share" / "youplumber"
-CONFIG_DIR = Path.home() / ".config" / "youplumber"
+if sys.platform == "win32":
+    _appdata = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
+    _localappdata = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+    CONFIG_DIR = _appdata / "youplumber"
+    DATA_DIR = _localappdata / "youplumber"
+else:
+    CONFIG_DIR = Path.home() / ".config" / "youplumber"
+    DATA_DIR = Path.home() / ".local" / "share" / "youplumber"
+
 DB_PATH = DATA_DIR / "library.db"
 DOWNLOADS_DIR = DATA_DIR / "downloads"
 STAGING_DIR = DATA_DIR / "staging"
@@ -42,6 +51,12 @@ folder_template = "{{genre}}/{{year}}/{{bpm_key}}/{{artist}} - {{title}}.{{ext}}
 """.replace("{downloads}", str(DOWNLOADS_DIR))
 
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib  # type: ignore[no-redef]
+
+
 def ensure_dirs() -> None:
     for p in (DATA_DIR, CONFIG_DIR, DOWNLOADS_DIR, STAGING_DIR):
         p.mkdir(parents=True, exist_ok=True)
@@ -53,8 +68,6 @@ def write_default_config() -> None:
 
 
 def load_config() -> dict:
-    import tomllib
-
     ensure_dirs()
     write_default_config()
     with CONFIG_PATH.open("rb") as f:
