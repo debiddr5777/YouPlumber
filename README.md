@@ -110,7 +110,7 @@ cd YouPlumber
 pip install -e .
 
 # 3. Launch the web UI
-youplumber serve --port 8652
+yp serve --port 8652
 ```
 
 ---
@@ -120,7 +120,7 @@ youplumber serve --port 8652
 ### Web UI (recommended)
 
 ```bash
-youplumber serve
+yp serve
 # → http://127.0.0.1:8652
 ```
 
@@ -134,17 +134,17 @@ youplumber serve
 
 ```bash
 # One-shot: add + queue + download
-youplumber grab "https://www.youtube.com/@somechannel" --limit 20 --codec mp3
+yp grab "https://www.youtube.com/@somechannel" --limit 20 --codec mp3
 
 # Step by step
-youplumber add   "https://www.youtube.com/playlist?list=PLxxxx" --limit 50
-youplumber sources
-youplumber list  --status new
-youplumber queue --all
-youplumber download
+yp add   "https://www.youtube.com/playlist?list=PLxxxx" --limit 50
+yp sources
+yp list  --status new
+yp queue --all
+yp download
 
 # Search
-youplumber grab "ytsearch30:afro house 2026" --limit 30
+yp grab "ytsearch30:afro house 2026" --limit 30
 ```
 
 ---
@@ -153,16 +153,16 @@ youplumber grab "ytsearch30:afro house 2026" --limit 30
 
 | Command | Purpose |
 |---------|---------|
-| `youplumber add <url>` | Add a channel/playlist/video as a source |
-| `youplumber grab <url>` | One-shot add + queue + download |
-| `youplumber list` | Browse library tracks |
-| `youplumber sources` | List configured sources |
-| `youplumber queue` | Mark tracks for download |
-| `youplumber download` | Process the download queue |
-| `youplumber status` | Show library statistics |
-| `youplumber doctor` | Verify environment + DB |
-| `youplumber config` | Update settings |
-| `youplumber serve` | Launch the web UI |
+| `yp add <url>` | Add a channel/playlist/video as a source |
+| `yp grab <url>` | One-shot add + queue + download |
+| `yp list` | Browse library tracks |
+| `yp sources` | List configured sources |
+| `yp queue` | Mark tracks for download |
+| `yp download` | Process the download queue |
+| `yp status` | Show library statistics |
+| `yp doctor` | Verify environment + DB |
+| `yp config` | Update settings |
+| `yp serve` | Launch the web UI |
 
 ---
 
@@ -191,7 +191,7 @@ embed_metadata      = true
 Override at runtime:
 
 ```bash
-youplumber config --concurrent-jobs 8 --codec flac --bitrate 320
+yp config --concurrent-jobs 8 --codec flac --bitrate 320
 ```
 
 ---

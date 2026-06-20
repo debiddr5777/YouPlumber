@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
-youplumber = "youplumber.cli:main"
+yp = "youplumber.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
