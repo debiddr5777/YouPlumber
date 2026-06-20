@@ -78,6 +78,15 @@ CREATE TABLE IF NOT EXISTS jobs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+
+CREATE TABLE IF NOT EXISTS sessions (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    started_at    INTEGER NOT NULL,
+    ended_at      INTEGER,
+    tracks_ok     INTEGER DEFAULT 0,
+    tracks_failed INTEGER DEFAULT 0,
+    output_dir    TEXT
+);
 """
 
 
@@ -262,4 +271,37 @@ def next_queued(conn: sqlite3.Connection, limit: int = 1) -> list[sqlite3.Row]:
         "SELECT * FROM tracks WHERE status='queued' "
         "ORDER BY id LIMIT ?",
         (limit,),
+    ))
+
+
+# --- sessions ---
+
+def create_session(conn: sqlite3.Connection, output_dir: str = "") -> int:
+    cur = conn.execute(
+        "INSERT INTO sessions(started_at, output_dir) VALUES (?, ?)",
+        (int(time.time()), output_dir),
+    )
+    return cur.lastrowid
+
+
+def finish_session(conn: sqlite3.Connection, session_id: int,
+                   ok: int, failed: int) -> None:
+    conn.execute(
+        "UPDATE sessions SET ended_at=?, tracks_ok=?, tracks_failed=? WHERE id=?",
+        (int(time.time()), ok, failed, session_id),
+    )
+
+
+def get_session_done_tracks(conn: sqlite3.Connection, session_id: int,
+                            since: int) -> list[sqlite3.Row]:
+    return list(conn.execute(
+        "SELECT * FROM tracks WHERE status='done' AND updated_at >= ? "
+        "ORDER BY updated_at DESC LIMIT 100",
+        (since,),
+    ))
+
+
+def list_sessions(conn: sqlite3.Connection, limit: int = 20) -> list[sqlite3.Row]:
+    return list(conn.execute(
+        "SELECT * FROM sessions ORDER BY started_at DESC LIMIT ?", (limit,)
     ))

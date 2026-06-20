@@ -29,6 +29,8 @@ _download_thread: threading.Thread | None = None
 _progress_reporter = ProgressReporter()
 _ws_clients: set[WebSocket] = set()
 _db_lock = threading.Lock()
+_session_id: int | None = None
+_session_start: int = 0
 
 
 def _get_conn() -> sqlite3.Connection:
@@ -40,14 +42,42 @@ def _get_conn() -> sqlite3.Connection:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global _session_id, _session_start
     conn = _get_conn()
     conn.execute("UPDATE tracks SET status='new' WHERE status='downloading'")
+    c = cfg.load_config()
+    out = c.get("downloads", {}).get("output_dir", "")
+    _session_id = db_module.create_session(conn, str(out))
+    _session_start = int(time.time())
     conn.commit()
+
+    log.info("session %d started → %s", _session_id, out)
+
     task = asyncio.create_task(_broadcast_progress())
     yield
     task.cancel()
     if _download_queue:
         _download_queue.stop()
+
+    # --- shutdown summary ---
+    done_tracks = db_module.get_session_done_tracks(conn, _session_id, _session_start)
+    ok = len(done_tracks)
+    total_q = conn.execute("SELECT COUNT(*) c FROM tracks WHERE status='done'").fetchone()["c"]
+    failed = conn.execute("SELECT COUNT(*) c FROM tracks WHERE status='failed'").fetchone()["c"]
+    db_module.finish_session(conn, _session_id, ok, failed)
+    conn.commit()
+
+    print("\n" + "=" * 60)
+    print(f"  Session #{_session_id} finished")
+    print(f"  Downloaded: {ok} track{'s' if ok != 1 else ''}")
+    print(f"  Output:     {out}")
+    if done_tracks:
+        print()
+        for r in done_tracks:
+            fp = r["file_path"] or "?"
+            print(f"    ✓ {r['title']}")
+            print(f"      {fp}")
+    print("=" * 60 + "\n")
 
 
 app = FastAPI(title="YouPlumber", docs_url="/api/docs", lifespan=lifespan)
@@ -407,6 +437,28 @@ async def finalize_tracks(body: FinalizeBody):
     result = do_finalize(conn, output_dir=out, move=(body.mode != "copy"), organize_by=body.organize_by)
     conn.commit()
     return result
+
+
+# --- sessions ---
+
+@app.get("/api/sessions")
+async def api_sessions():
+    conn = _get_conn()
+    return [dict(r) for r in db_module.list_sessions(conn)]
+
+@app.get("/api/sessions/{session_id}/tracks")
+async def api_session_tracks(session_id: int):
+    conn = _get_conn()
+    s = conn.execute("SELECT * FROM sessions WHERE id=?", (session_id,)).fetchone()
+    if not s:
+        raise HTTPException(404)
+    since = s["started_at"]
+    rows = conn.execute(
+        "SELECT * FROM tracks WHERE status='done' AND updated_at >= ? "
+        "ORDER BY updated_at DESC LIMIT 100",
+        (since,),
+    ).fetchall()
+    return [dict(r) for r in rows]
 
 
 # --- config ---

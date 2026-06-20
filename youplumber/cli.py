@@ -445,7 +445,8 @@ def serve(host: str, port: int, open: bool) -> None:
         webbrowser.open(url)
     console.print(f"[bold cyan]yp web UI[/bold cyan] → {url}")
     console.print("[dim]Press Ctrl+C to stop[/dim]")
-    uvicorn.run(app, host=host, port=port, log_level="info")
+    uvicorn.run(app, host=host, port=port, log_level="warning",
+                access_log=False)
 
 
 if __name__ == "__main__":

@@ -115,6 +115,16 @@ input:focus{border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,.15)}
       <div id="recent-empty" class="text-center py-6 text-gray-500 text-sm hidden">
         <i class="fas fa-check-circle text-2xl mb-2 opacity-30"></i><br>No downloads yet
       </div>
+      <div class="mt-4 pt-3 border-t border-dark-600">
+        <div class="flex items-center justify-between cursor-pointer select-none" onclick="toggleSessions()">
+          <h2 class="text-sm font-semibold flex items-center gap-2">
+            <i class="fas fa-history text-gray-500"></i>Sessions
+            <span id="sess-badge" class="text-xs bg-dark-600 px-2 py-0.5 rounded-full">0</span>
+          </h2>
+          <i id="sess-arrow" class="fas fa-chevron-down text-xs text-gray-600"></i>
+        </div>
+        <div id="sess-list" class="space-y-1 mt-2 hidden max-h-[25vh] overflow-y-auto"></div>
+      </div>
     </div>
   </div>
 
@@ -298,8 +308,27 @@ async function saveSettings(){
   toast('Saved','success');document.getElementById('out-dir').textContent=document.getElementById('set-out').value;
 }
 
+var SESS_VIS=false;
+function toggleSessions(){
+  SESS_VIS=!SESS_VIS;
+  document.getElementById('sess-list').classList.toggle('hidden',!SESS_VIS);
+  document.getElementById('sess-arrow').className='fas fa-chevron-'+(SESS_VIS?'down':'right')+' text-xs text-gray-600';
+  if(SESS_VIS)fetchSessions();
+}
+async function fetchSessions(){
+  try{
+    var ss=await api('/api/sessions');
+    document.getElementById('sess-badge').textContent=ss.length;
+    document.getElementById('sess-list').innerHTML=ss.slice(0,10).map(function(s){
+      var start=new Date(s.started_at*1000).toLocaleString();
+      var end=s.ended_at?new Date(s.ended_at*1000).toLocaleString():'running';
+      return '<div class="p-2 rounded-lg bg-dark-700/30 text-xs"><div class="flex justify-between"><span class="text-gray-400">#'+s.id+'</span><span class="'+(s.ended_at?'text-gray-500':'text-emerald-400')+'">'+(s.ended_at?'done':'active')+'</span></div><div class="text-gray-500">'+start+'</div><div class="text-gray-500">✓ '+s.tracks_ok+' track'+(s.tracks_ok==1?'':'s')+(s.tracks_failed?'  ✗ '+s.tracks_failed:'')+'</div></div>';
+    }).join('');
+  }catch(e){}
+}
+
 connectWS();startRefresh();
 api('/api/config').then(function(c){document.getElementById('out-dir').textContent=c.downloads.output_dir||''}).catch(function(){});
-</script>
+setInterval(fetchSessions,5000);</script>
 </body>
 </html>
