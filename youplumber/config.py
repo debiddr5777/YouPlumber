@@ -30,7 +30,7 @@ rate_limit = ""                # e.g. "10M" for 10 MB/s
 #                          %(playlist)s, %(upload_date>%Y-%m)s, %(ext)s
 # %(channel,uploader)s means "use channel, fall back to uploader"
 folder_template = ""
-file_template   = "%(title)s [%(id)s].%(ext)s"
+file_template   = "%(title)s.%(ext)s"
 
 [audio]
 codec = "mp3"             # mp3 | wav | flac | aac | opus | best

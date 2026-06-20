@@ -175,7 +175,7 @@ concurrent_jobs     = 4
 retries             = 5
 rate_limit          = ""            # e.g. "10M"
 folder_template     = ""            # flat output
-file_template       = "%(title)s [%(id)s].%(ext)s"
+file_template       = "%(title)s.%(ext)s"
 
 [audio]
 codec               = "mp3"         # mp3 | wav | flac | aac | opus

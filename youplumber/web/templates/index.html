@@ -191,7 +191,7 @@ function syncHeader(){
   document.getElementById('head-queued').textContent=Math.max((s.total||0)-(s.done||0),0);
   var act=Object.keys(S.progress).length;
   document.getElementById('head-active').textContent=act||'0';
-  document.getElementById('head-done').textContent=s.ok||0;
+  document.getElementById('head-done').textContent=s.ok||s.done||0;
   document.getElementById('head-disk').textContent=sizeF(s.bytes||0);
   document.getElementById('live-dot').className=(act||S.running)?'text-blue-400 text-[8px]':'text-emerald-400 text-[8px]';
   document.getElementById('live-stats').textContent=(act||S.running)?act+' active':'idle';

@@ -34,7 +34,7 @@ def _ydl_opts_for_track(cfg: dict, track: dict) -> tuple[dict, Path, str]:
     target_ext = CODEC_MAP.get(codec, ("mp3", "mp3"))[1] or "%(ext)s"
 
     folder_tpl = dl.get("folder_template", "")
-    file_tpl = dl.get("file_template", "%(title)s [%(id)s].%(ext)s")
+    file_tpl = dl.get("file_template", "%(title)s.%(ext)s")
     if folder_tpl and folder_tpl.strip():
         outtmpl = str(out_dir / folder_tpl.strip() / file_tpl)
     else:
@@ -45,7 +45,6 @@ def _ydl_opts_for_track(cfg: dict, track: dict) -> tuple[dict, Path, str]:
         "no_warnings": True,
         "noprogress": True,
         "outtmpl": outtmpl,
-        "restrictfilenames": True,
         "windowsfilenames": True,
         "trim_file_name": 200,
         "format": dl.get("format", "bestaudio/best"),

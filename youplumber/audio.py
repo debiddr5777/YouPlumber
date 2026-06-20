@@ -225,6 +225,6 @@ def _tag_ogg(path: Path, meta: dict[str, Any]) -> None:
 
 
 def safe_filename(name: str) -> str:
-    name = re.sub(r'[\\/:*?"<>|]+', '_', name)
+    name = re.sub(r'[\\/:*?"<>|]+', '', name)
     name = re.sub(r'\s+', ' ', name).strip()
     return name[:200] or "track"
