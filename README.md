@@ -71,29 +71,26 @@ to the browser every 300ms.
 
 ## 🖼️ Web UI
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  🎧 YouPlumber                                   ● idle     │
-│  0 queued  0 active  5 done  142 MB               ⚙️        │
-├──────────────────────────────────────────────────────────────┤
-│  [ Paste YouTube link (channel, playlist, or search) ] [🔍] │
-├──────────────────────────────┬───────────────────────────────┤
-│  📋 Queue                    │  🕐 Recent                    │
-│                              │                               │
-│  ┌──────────────────────────┐│  ┌───────────────────────────┐│
-│  │ Artist - Track Name  45% ││  │ Track Name            ✓  ││
-│  │ ██████████████░░░░░░░    ││  │ Uploader · 4:30         ││
-│  └──────────────────────────┘│  │ 📁 Title [abc123].mp3    ││
-│                              │  └───────────────────────────┘│
-│  Track A                  ✓  │  ┌───────────────────────────┐│
-│  Track B             45% ◌   │  │ Track Name            ✓  ││
-│  Track C                  ⏳ │  │ ...                       ││
-│                              │                               │
-│  [▶ Start]  [⏹ Stop]  [🗑]  │                               │
-└──────────────────────────────┴───────────────────────────────┘
-```
+<table>
+  <tr>
+    <td width="50%"><img src="screenshot-empty.png" alt="Empty state" width="100%"></td>
+    <td width="50%"><img src="screenshot-fetched.png" alt="Results after fetch" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>1. Paste a link → click Fetch</em></td>
+    <td align="center"><em>2. Tick tracks you want</em></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="screenshot-queued.png" alt="Queue populated" width="100%"></td>
+    <td width="50%"><img src="screenshot-downloading.png" alt="Active downloads" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>3. Add to Queue</em></td>
+    <td align="center"><em>4. Start → watch live progress</em></td>
+  </tr>
+</table>
 
-The web UI runs on `http://localhost:8652` — paste a URL, tick tracks, download.
+The web UI runs at `http://localhost:8652` — paste a URL, tick tracks, and download.
 
 ---
 
