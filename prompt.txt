@@ -1,0 +1,765 @@
+What you're describing is essentially a **DJ Media Manager + YouTube Audio Acquisition + Library Preparation Suite**.
+
+One important consideration: downloading copyrighted music from YouTube without authorization can violate YouTube's Terms of Service and copyright law. So the safest implementation is a system that works with:
+
+* Your own uploads
+* Copyright-free music
+* Music you have rights to download
+* Sources that explicitly permit downloading
+
+That said, you can absolutely build a professional DJ-focused application that manages acquisition, tagging, analysis, organization, and export of audio libraries.
+
+Below is a master specification prompt that you could give to an AI coding agent or development team.
+
+---
+
+# MASTER PROMPT — PROFESSIONAL DJ MUSIC LIBRARY MANAGER
+
+## Project Overview
+
+Build a professional desktop application called **DJ Library Manager Pro**.
+
+The software is designed for DJs who manage large music libraries from multiple online and local sources.
+
+The application must provide:
+
+* Music discovery
+* Channel and playlist monitoring
+* Bulk audio acquisition from authorized sources
+* WAV/MP3 conversion
+* Metadata enrichment
+* BPM and key analysis
+* Cue point generation
+* Library organization
+* DJ software compatibility
+* Offline-first operation
+* Modern clean UI
+* No ads
+* No cloud dependency
+
+Target users:
+
+* Club DJs
+* Mobile DJs
+* Wedding DJs
+* Open format DJs
+* Radio DJs
+* Producers
+
+---
+
+# Technology Stack
+
+Frontend:
+
+* Electron
+* React
+* TypeScript
+* Material UI
+* Zustand
+
+Backend:
+
+* Node.js
+* TypeScript
+
+Database:
+
+* SQLite
+
+Audio Analysis:
+
+* Essentia
+* Librosa
+* FFmpeg
+
+Metadata:
+
+* MusicBrainz API
+* AcoustID
+* Discogs API
+
+File Management:
+
+* Node filesystem APIs
+
+Packaging:
+
+* Electron Builder
+
+Platforms:
+
+* Windows
+* macOS
+
+---
+
+# Dashboard
+
+Show:
+
+### Total Library
+
+* Number of tracks
+
+### Total Storage
+
+* GB/TB used
+
+### Recently Added
+
+### Download Queue
+
+### Failed Jobs
+
+### Duplicate Tracks
+
+### Missing Metadata
+
+### BPM Analysis Queue
+
+---
+
+# Search System
+
+Universal search box.
+
+Search by:
+
+* Title
+* Artist
+* Album
+* Remix
+* Label
+* Genre
+* BPM
+* Key
+* Year
+* Filename
+
+Advanced filters:
+
+* BPM range
+* Camelot key
+* Genre
+* Duration
+* Rating
+* Date added
+
+---
+
+# Source Browser
+
+Allow adding music sources.
+
+Supported source types:
+
+### Channels
+
+User enters:
+
+* Channel URL
+
+Software fetches:
+
+* Latest uploads
+* Metadata
+* Thumbnails
+
+Display:
+
+* Track list
+* Duration
+* Upload date
+
+---
+
+### Playlists
+
+Add playlist URL.
+
+Show all tracks.
+
+Bulk select.
+
+---
+
+### Search
+
+Search music by:
+
+* Artist
+* Song
+* Remix
+* Label
+
+Results shown in grid.
+
+---
+
+# Batch Selection System
+
+Checkbox on every item.
+
+Operations:
+
+Select:
+
+* All
+* None
+* Filtered
+* New only
+* Unprocessed
+
+Actions:
+
+* Download
+* Analyze
+* Convert
+* Tag
+* Move
+* Delete
+
+---
+
+# Download Manager
+
+Features:
+
+### Queue System
+
+Multiple simultaneous jobs.
+
+Configurable:
+
+* Threads
+* Speed limits
+
+---
+
+### Resume Support
+
+Interrupted jobs continue.
+
+---
+
+### Retry Logic
+
+Automatic retries.
+
+---
+
+### Progress View
+
+Show:
+
+* Speed
+* ETA
+* Status
+
+---
+
+# Audio Processing
+
+After acquisition:
+
+Pipeline:
+
+1. Verify file
+2. Convert
+3. Normalize metadata
+4. Analyze BPM
+5. Analyze key
+6. Generate waveform
+7. Generate previews
+8. Save database
+
+---
+
+# Output Formats
+
+Support:
+
+### WAV
+
+Options:
+
+* 16 bit
+* 24 bit
+
+### MP3
+
+Options:
+
+* 320 kbps
+* V0
+
+### FLAC
+
+### AIFF
+
+### AAC
+
+---
+
+# Metadata Engine
+
+Automatically populate:
+
+### Standard Tags
+
+* Title
+* Artist
+* Album
+* Genre
+* Year
+* Label
+* Track number
+
+---
+
+### DJ Tags
+
+* BPM
+* Musical Key
+* Camelot Wheel Key
+* Energy Level
+* Mood
+* Danceability
+
+---
+
+# BPM Detection
+
+Calculate:
+
+* BPM
+
+Store in:
+
+* Database
+* Metadata tags
+
+Accuracy target:
+
+95%+
+
+---
+
+# Key Detection
+
+Detect:
+
+* Musical key
+
+Examples:
+
+* C Major
+* A Minor
+
+Convert to:
+
+Camelot notation:
+
+* 8A
+* 8B
+* 9A
+
+etc.
+
+---
+
+# Waveform Analysis
+
+Generate:
+
+* Full waveform
+
+Store:
+
+PNG
+
+Used in:
+
+* Track preview
+
+---
+
+# Cue Point Generation
+
+Automatically detect:
+
+### Intro
+
+### First Drop
+
+### Breakdown
+
+### Build Up
+
+### Outro
+
+Create:
+
+* Suggested cue points
+
+---
+
+# DJ Software Compatibility
+
+Export libraries for:
+
+### Rekordbox
+
+### Serato
+
+### Virtual DJ
+
+### Traktor
+
+### Engine DJ
+
+Generate compatible metadata.
+
+---
+
+# Smart Folder Structure
+
+Automatically organize.
+
+Example:
+
+Music/
+
+House/
+2026/
+128 BPM/
+Artist - Title.wav
+
+Custom templates allowed.
+
+---
+
+# Duplicate Detection
+
+Find duplicates by:
+
+### Filename
+
+### Metadata
+
+### Acoustic Fingerprint
+
+Options:
+
+* Merge
+* Keep best quality
+* Delete duplicate
+
+---
+
+# Audio Quality Scoring
+
+Analyze:
+
+* Bitrate
+* Spectral content
+* Dynamic range
+
+Detect:
+
+* Fake 320 kbps files
+* Upscaled audio
+
+Assign quality score.
+
+---
+
+# Auto Metadata Repair
+
+Use:
+
+* MusicBrainz
+* Discogs
+* AcoustID
+
+Correct:
+
+* Misspellings
+* Missing artists
+* Wrong album data
+
+---
+
+# Artwork Manager
+
+Fetch:
+
+* Cover art
+
+Automatically embed.
+
+Support:
+
+* JPG
+* PNG
+
+---
+
+# Playlist Builder
+
+Create playlists by:
+
+### Genre
+
+### BPM
+
+### Key
+
+### Energy
+
+### Date Added
+
+### Custom Rules
+
+---
+
+# Smart DJ Crates
+
+Examples:
+
+### Warm Up
+
+Energy < 5
+
+### Peak Time
+
+Energy > 8
+
+### Closing Set
+
+Energy < 4
+
+Dynamic updates.
+
+---
+
+# Harmonic Mixing Assistant
+
+Suggest tracks based on:
+
+* Camelot wheel
+* BPM compatibility
+* Genre similarity
+
+Show next-track recommendations.
+
+---
+
+# Bulk Operations
+
+Mass actions:
+
+### Rename
+
+### Re-tag
+
+### Re-analyze
+
+### Re-convert
+
+### Re-export
+
+### Move
+
+### Archive
+
+---
+
+# Keyboard Shortcuts
+
+Professional workflow.
+
+Examples:
+
+Space = Preview
+
+Ctrl+A = Select All
+
+Delete = Remove
+
+Ctrl+D = Duplicate Check
+
+Ctrl+E = Export
+
+---
+
+# Audio Preview Player
+
+Built-in player.
+
+Features:
+
+* Waveform
+* Cue markers
+* Looping
+* Pitch control
+* BPM sync
+
+---
+
+# Accessibility
+
+Large mode.
+
+High contrast mode.
+
+Keyboard-only operation.
+
+Custom font scaling.
+
+Screen reader support.
+
+---
+
+# Backup System
+
+Automatic:
+
+* Database backup
+* Metadata backup
+
+Schedules:
+
+* Daily
+* Weekly
+* Monthly
+
+---
+
+# Settings
+
+Audio:
+
+* Default format
+* Default bitrate
+
+Analysis:
+
+* BPM algorithm
+
+Storage:
+
+* Output folders
+
+UI:
+
+* Theme
+* Font size
+
+Downloads:
+
+* Concurrent jobs
+
+---
+
+# Plugin Architecture
+
+Allow future plugins.
+
+Examples:
+
+* Spotify metadata
+* Beatport integration
+* Rekordbox sync
+* AI playlist generator
+
+---
+
+# Future AI Features
+
+### Auto Genre Detection
+
+### Mood Detection
+
+### Setlist Generation
+
+### Crowd Energy Prediction
+
+### Harmonic Set Planning
+
+### Auto Crate Building
+
+---
+
+# Performance Requirements
+
+Library size:
+
+* 500,000+ tracks
+
+Startup:
+
+* Under 5 seconds
+
+Search:
+
+* Under 100 ms
+
+Memory:
+
+* Under 1 GB idle
+
+---
+
+# Security
+
+No telemetry.
+
+No ads.
+
+No tracking.
+
+Local-first.
+
+Encrypted settings.
+
+---
+
+# Deliverables
+
+Provide:
+
+1. Complete architecture
+2. Database schema
+3. Electron project structure
+4. React frontend
+5. Node backend
+6. Audio analysis engine
+7. Metadata engine
+8. Export modules
+9. Installer generation
+10. Full documentation
+11. Automated tests
+12. CI/CD pipeline
+13. Auto-update system
+14. Plugin SDK
+15. Production-ready code
+
+---
+
+For a real DJ workflow, I'd add a few features that many commercial tools still lack:
+
+* Beat-grid editor
+* Stems generation (vocals, drums, bass, instruments)
+* Loudness/LUFS analysis
+* Intro/outro length detection
+* Mixed In Key style harmonic recommendations
+* Track energy scoring (1–10)
+* "Tracks similar to this" using audio embeddings
+* USB export directly to CDJ-compatible drives
+* Automatic crate creation for specific gigs (wedding, club, lounge, festival)
+* Detection of radio edits vs extended mixes
+* Set history analytics (which tracks you play most often)
+
+Those additions would make it much closer to a professional DJ ecosystem rather than just a downloader.

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>utube</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{colors:{dark:{900:'#08080e',800:'#0f0f18',700:'#181828',600:'#252540',500:'#32325a'},accent:{400:'#818cf8',500:'#6366f1',600:'#4f46e5'}}}}}</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*{scrollbar-width:thin;scrollbar-color:#252540 transparent}
+body{background:#08080e;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.box{background:rgba(15,15,24,.95);border:1px solid rgba(255,255,255,.06);border-radius:12px}
+.box-hover:hover{border-color:rgba(99,102,241,.3)}
+input{background:#181828;border:1px solid #252540;color:#e2e8f0;border-radius:8px;padding:8px 12px;outline:none;font-size:14px;transition:border-color .15s}
+input:focus{border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,.15)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;border:none;user-select:none}
+.btn-primary{background:#4f46e5;color:#fff}
+.btn-primary:hover{background:#4338ca;box-shadow:0 0 12px rgba(79,70,229,.35)}
+.btn-primary:disabled{opacity:.35;cursor:default;box-shadow:none}
+.btn-secondary{background:#181828;color:#c4b5fd;border:1px solid #252540}
+.btn-secondary:hover{background:#22223a;border-color:#4338ca}
+.btn-success{background:#059669;color:#fff}
+.btn-success:hover{background:#047857}
+.btn-danger{background:#7f1d1d;color:#fff}
+.btn-danger:hover{background:#991b1b}
+.btn-sm{padding:5px 10px;font-size:12px}
+.tag{display:inline-flex;padding:1px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-new{background:rgba(34,197,94,.12);color:#4ade80}
+.tag-done{background:rgba(99,102,241,.12);color:#818cf8}
+.tag-queued{background:rgba(251,191,36,.12);color:#fbbf24}
+.tag-active{background:rgba(59,130,246,.12);color:#60a5fa}
+.tag-failed{background:rgba(239,68,68,.12);color:#f87171}
+.progress-bar{background:linear-gradient(90deg,#6366f1,#a78bfa);background-size:200% 100%;animation:shimmer 2s linear infinite;height:4px;border-radius:4px;transition:width .3s}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;color:#fff;font-size:13px;z-index:99;animation:slideUp .25s ease;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+@keyframes slideUp{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+.thumb{aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:#181828;width:100px;flex-shrink:0}
+.file-link{cursor:pointer;color:#818cf8;transition:color .15s}
+.file-link:hover{color:#a78bfa;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="max-w-5xl mx-auto px-4 py-4">
+
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-lg font-bold bg-gradient-to-r from-accent-400 to-purple-400 bg-clip-text text-transparent">
+        <i class="fas fa-headphones text-accent-400 mr-1.5"></i>utube
+      </h1>
+      <div class="text-[10px] text-gray-600 flex items-center gap-2">
+        <span id="live-dot" class="text-emerald-400 text-[8px]"><i class="fas fa-circle"></i></span>
+        <span id="live-stats"></span>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 text-xs text-gray-500">
+      <span><i class="fas fa-inbox mr-1"></i><span id="head-queued">0</span></span>
+      <span><i class="fas fa-download mr-1 text-blue-400"></i><span id="head-active">0</span></span>
+      <span><i class="fas fa-check-circle mr-1 text-emerald-400"></i><span id="head-done">0</span></span>
+      <span><i class="fas fa-hard-drive mr-1"></i><span id="head-disk">0 MB</span></span>
+      <a class="hover:text-gray-300 cursor-pointer ml-2" onclick="showSettings()"><i class="fas fa-cog"></i></a>
+    </div>
+  </div>
+
+  <div class="flex gap-2 mb-4">
+    <input id="url-input" placeholder="Paste YouTube link (channel, playlist, or search)" class="flex-1" autofocus>
+    <button id="btn-fetch" class="btn btn-primary" onclick="fetchURL()"><i class="fas fa-search"></i>Fetch</button>
+  </div>
+
+  <div id="results-area" class="hidden box p-4 mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <span id="result-label" class="text-sm font-medium"></span>
+        <span id="result-count" class="text-xs text-gray-500 ml-2"></span>
+      </div>
+      <div class="flex gap-2 items-center">
+        <label class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer hover:text-gray-200">
+          <input type="checkbox" id="sel-all" onchange="toggleAll()">
+          All
+        </label>
+        <span id="sel-count" class="text-xs text-gray-500">0</span>
+        <button id="btn-add-q" class="btn btn-sm btn-success" onclick="addToQueue()"><i class="fas fa-plus"></i>Add to Queue</button>
+      </div>
+    </div>
+    <div id="results-list" class="space-y-1 max-h-[35vh] overflow-y-auto"></div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="lg:col-span-2 box p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold flex items-center gap-2">
+          <i class="fas fa-list text-accent-400"></i>Queue
+          <span id="queue-badge" class="text-xs bg-dark-600 px-2 py-0.5 rounded-full">0</span>
+        </h2>
+        <div class="flex gap-1.5">
+          <button id="btn-go" class="btn btn-sm btn-primary" onclick="startQ()"><i class="fas fa-play"></i>Start</button>
+          <button id="btn-halt" class="btn btn-sm btn-danger hidden" onclick="stopQ()"><i class="fas fa-stop"></i>Stop</button>
+          <button id="btn-clr" class="btn btn-sm btn-secondary" onclick="clearQ()"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      <div id="active-box" class="space-y-2 mb-3"></div>
+      <div id="q-list" class="space-y-1 max-h-[25vh] overflow-y-auto"></div>
+      <div id="q-empty" class="text-center py-6 text-gray-500 text-sm hidden">
+        <i class="fas fa-inbox text-2xl mb-2 opacity-30"></i><br>Queue is empty. Paste a URL above.
+      </div>
+    </div>
+
+    <div class="box p-4">
+      <h2 class="text-sm font-semibold flex items-center gap-2 mb-3">
+        <i class="fas fa-clock text-emerald-400"></i>Recent
+        <span id="recent-badge" class="text-xs bg-dark-600 px-2 py-0.5 rounded-full">0</span>
+      </h2>
+      <div id="recent-list" class="space-y-1.5 max-h-[60vh] overflow-y-auto"></div>
+      <div id="recent-empty" class="text-center py-6 text-gray-500 text-sm hidden">
+        <i class="fas fa-check-circle text-2xl mb-2 opacity-30"></i><br>No downloads yet
+      </div>
+    </div>
+  </div>
+
+  <div class="text-xs text-gray-600 mt-3 text-center flex items-center justify-center gap-4">
+    <span>to: <span id="out-dir" class="font-mono text-gray-500"></span></span>
+  </div>
+</div>
+
+<div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50" onclick="if(event.target===this)hideSettings()">
+  <div class="box p-5 w-full max-w-md mx-4" onclick="event.stopPropagation()">
+    <h3 class="text-sm font-bold mb-4"><i class="fas fa-cog text-accent-400 mr-2"></i>Settings</h3>
+    <div class="space-y-3">
+      <div><label class="text-xs text-gray-400 block mb-0.5">Output folder</label>
+        <input id="set-out" class="w-full font-mono text-xs"></div>
+      <div class="grid grid-cols-3 gap-2">
+        <div><label class="text-xs text-gray-400 block mb-0.5">Codec</label>
+          <select id="set-codec" class="w-full text-sm bg-dark-700 border border-dark-600 rounded-lg px-2 py-2">
+            <option value="mp3">MP3</option><option value="wav">WAV</option><option value="flac">FLAC</option></select></div>
+        <div><label class="text-xs text-gray-400 block mb-0.5">Bitrate</label>
+          <select id="set-bitrate" class="w-full text-sm bg-dark-700 border border-dark-600 rounded-lg px-2 py-2">
+            <option value="128">128</option><option value="192">192</option><option value="256">256</option><option value="320">320</option></select></div>
+        <div><label class="text-xs text-gray-400 block mb-0.5">Workers</label>
+          <input id="set-jobs" type="number" min="1" max="16" class="w-full"></div>
+      </div>
+      <div class="flex gap-2 justify-end pt-2">
+        <button class="btn btn-sm btn-secondary" onclick="hideSettings()">Close</button>
+        <button class="btn btn-sm btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var S = { running: false, stats: {ok:0,failed:0,total:0,done:0,bytes:0}, progress: {}, recent: [], queuedIds: new Set(), queuedTracks: [] };
+var ws, refTimer, sourceId = null;
+
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function sizeF(b){return b>=1e9?(b/1e9).toFixed(2)+' GB':b>=1e6?(b/1e6).toFixed(1)+' MB':b>=1e3?(b/1e3).toFixed(0)+' KB':b+' B';}
+
+async function api(path,o){
+  o=o||{};var r=await fetch(path,{headers:{'Content-Type':'application/json'},method:o.method||'GET',body:o.body||null});
+  if(!r.ok){var e;try{e=(await r.json()).detail}catch(e){e=r.statusText}throw new Error(e||r.statusText)}
+  return r.json();
+}
+
+function toast(m,t){
+  t=t||'info';var el=document.createElement('div');el.className='toast '+(t==='error'?'bg-red-700':t==='success'?'bg-emerald-700':'bg-accent-700');
+  el.innerHTML=m;document.body.appendChild(el);
+  setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(function(){el.remove()},300)},4000);
+}
+
+function connectWS(){
+  var p=location.protocol==='https:'?'wss:':'ws:';
+  ws=new WebSocket(p+'//'+location.host+'/ws/progress');
+  ws.onmessage=function(e){try{var d=JSON.parse(e.data);S.running=d.running;for(var k in d.stats)S.stats[k]=d.stats[k];S.progress=d.progress||{};syncAll();}catch(e){}};
+  ws.onclose=function(){setTimeout(connectWS,1500);};
+}
+
+function startRefresh(){
+  refTimer=setInterval(function(){
+    api('/api/tracks/recent?limit=10').then(function(r){S.recent=r;syncRecent();}).catch(function(){});
+    api('/api/stats').then(function(s){for(var k in s)S.stats[k]=s[k];syncHeader();syncQueue();}).catch(function(){});
+    api('/api/tracks?status=queued&limit=500').then(function(t){S.queuedTracks=t;syncQueueList();}).catch(function(){});
+    api('/api/tracks?status=failed&limit=50').then(function(t){if(t.length){S.queuedTracks=(S.queuedTracks||[]).concat(t);syncQueueList();}}).catch(function(){});
+    api('/api/tracks?status=downloading&limit=50').then(function(t){if(t.length&&!Object.keys(S.progress).length){t.forEach(function(x){if(!S.progress[x.id])S.progress[x.id]={title:x.title,pct:0}});syncActive();}}).catch(function(){});
+    if(!S.running&&Object.keys(S.progress).length){S.progress={};syncActive();}
+  },2000);
+}
+
+function syncAll(){syncHeader();syncActive();syncQueue();syncQueueList();syncRecent();}
+
+function syncHeader(){
+  var s=S.stats;
+  document.getElementById('head-queued').textContent=Math.max((s.total||0)-(s.done||0),0);
+  var act=Object.keys(S.progress).length;
+  document.getElementById('head-active').textContent=act||'0';
+  document.getElementById('head-done').textContent=s.ok||0;
+  document.getElementById('head-disk').textContent=sizeF(s.bytes||0);
+  document.getElementById('live-dot').className=(act||S.running)?'text-blue-400 text-[8px]':'text-emerald-400 text-[8px]';
+  document.getElementById('live-stats').textContent=(act||S.running)?act+' active':'idle';
+}
+
+function syncActive(){
+  var entries=Object.values(S.progress);
+  var area=document.getElementById('active-box');
+  if(entries.length){
+    area.innerHTML=entries.map(function(p){
+      var pct=Math.round(p.pct||0);
+      return '<div class="box p-3 border-accent-500/20"><div class="flex justify-between items-center mb-1"><span class="text-sm truncate">'+esc((p.title||'').slice(0,45))+'</span><span class="text-xs text-gray-400 tabular-nums">'+pct+'%</span></div><div class="h-1.5 bg-dark-700 rounded-full overflow-hidden mb-1"><div class="progress-bar" style="width:'+pct+'%"></div></div><div class="flex justify-between text-[10px] text-gray-500 tabular-nums"><span>'+(p.speed?(p.speed/1024/1024).toFixed(1)+' MB/s':'')+'</span><span>'+(p.eta?p.eta+'s':'')+'</span></div></div>';
+    }).join('');
+  }else if(!S.running){area.innerHTML='';}
+  else{area.innerHTML='<div class="text-center py-3 text-xs text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Starting...</div>';}
+}
+
+function syncQueue(){
+  document.getElementById('queue-badge').textContent=(S.stats.total-(S.stats.done||0)||0);
+  var s=document.getElementById('btn-go'),h=document.getElementById('btn-halt');
+  if(S.running){s.classList.add('hidden');h.classList.remove('hidden');}else{s.classList.remove('hidden');h.classList.add('hidden');}
+  var hasQueued=(S.queuedTracks&&S.queuedTracks.length>0)||Object.keys(S.progress).length>0;
+  document.getElementById('q-empty').classList.toggle('hidden',hasQueued);
+}
+
+function syncQueueList(){
+  var list=document.getElementById('q-list');
+  var tracks=S.queuedTracks||[];
+  if(!tracks.length){list.innerHTML='';return;}
+  list.innerHTML=tracks.map(function(t){
+    var dur=t.duration?Math.floor(t.duration/60)+':'+(t.duration%60<10?'0':'')+t.duration%60:'?';
+    var tagClass='tag-queued',tagLabel='queued';
+    var prog=S.progress[t.id];
+    if(prog){tagClass='tag-active';tagLabel=Math.round(prog.pct||0)+'%';}
+    else if(t.status==='failed'){tagClass='tag-failed';tagLabel='failed';}
+    else if(t.status==='done'){tagClass='tag-done';tagLabel='done';}
+    return '<div class="flex items-center gap-2 p-2 rounded-lg bg-dark-700/30 box-hover"><div class="flex-1 min-w-0"><div class="text-xs truncate font-medium">'+esc((t.title||'').slice(0,40))+'</div><div class="text-[10px] text-gray-500">'+esc(t.uploader||'')+' &middot; '+dur+'</div></div><span class="tag '+tagClass+' flex-shrink-0">'+tagLabel+'</span></div>';
+  }).join('');
+  syncQueue();
+}
+
+function syncRecent(){
+  var r=S.recent;
+  document.getElementById('recent-badge').textContent=r.length;
+  document.getElementById('recent-empty').classList.toggle('hidden',!!r.length);
+  document.getElementById('recent-list').innerHTML=r.length?r.map(function(t){
+    var dur=t.duration?Math.floor(t.duration/60)+':'+(t.duration%60<10?'0':'')+t.duration%60:'?';
+    var fp=t.file_path||'',fn=fp.split('/').pop()||'';
+    return '<div class="flex items-center gap-2 p-2 rounded-lg bg-dark-700/30 box-hover"><div class="flex-1 min-w-0"><div class="text-xs truncate font-medium">'+esc((t.title||'').slice(0,40))+'</div><div class="text-[10px] text-gray-500">'+esc(t.uploader||'')+' &middot; '+dur+'</div>'+(fp?'<div class="file-link text-[10px] truncate" onclick="openFile('+t.id+')"><i class="fas fa-folder-open mr-0.5"></i>'+esc(fn)+'</div>':'')+'</div><span class="tag tag-done flex-shrink-0">done</span></div>';
+  }).join(''):'';
+}
+
+async function fetchURL(){
+  var url=document.getElementById('url-input').value.trim();
+  if(!url)return;
+  var b=document.getElementById('btn-fetch');b.disabled=true;b.innerHTML='<i class="fas fa-spinner fa-spin"></i>Fetching...';
+  try{
+    var r=await api('/api/sources',{method:'POST',body:JSON.stringify({url:url,limit:100,name:null})});
+    sourceId=r.source_id;
+    document.getElementById('result-label').textContent=r.name||'Results';
+    document.getElementById('result-count').textContent=r.tracks_added+' tracks';
+    document.getElementById('results-area').classList.remove('hidden');
+    var tracks=await api('/api/tracks?source_id='+sourceId+'&limit=200');
+    document.getElementById('results-list').innerHTML=tracks.length?tracks.map(function(t){
+      var dur=t.duration?Math.floor(t.duration/60)+':'+(t.duration%60<10?'0':'')+t.duration%60:'?';
+      var inQ=S.queuedIds.has(t.id);
+      return '<label class="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-dark-700/50'+(inQ?' opacity-40':'')+'"><input type="checkbox" class="res-cb flex-shrink-0" data-id="'+t.id+'"'+(inQ?' disabled':' checked')+'>'+(t.thumbnail?'<img src="'+esc(t.thumbnail)+'" class="thumb" loading="lazy" onerror="this.style.display=\'none\'">':'')+'<div class="flex-1 min-w-0"><div class="text-sm truncate">'+esc(t.title||'Untitled')+'</div><div class="text-xs text-gray-500">'+esc(t.uploader||'')+' &middot; '+dur+'</div></div><span class="text-xs text-gray-600">'+(inQ?'in queue':t.status)+'</span></label>';
+    }).join(''):'<div class="text-center py-6 text-sm text-gray-500">No tracks</div>';
+    countSel();
+    document.getElementById('url-input').value='';document.getElementById('url-input').focus();
+  }catch(e){toast(e.message,'error')}
+  b.disabled=false;b.innerHTML='<i class="fas fa-search"></i>Fetch';
+}
+
+function toggleAll(){var cb=document.getElementById('sel-all');document.querySelectorAll('.res-cb').forEach(function(c){if(!c.disabled)c.checked=cb.checked});countSel();}
+function countSel(){document.getElementById('sel-count').textContent=document.querySelectorAll('.res-cb:checked').length+' selected';}
+
+async function addToQueue(){
+  var ids=[],cbs=document.querySelectorAll('.res-cb:checked');
+  cbs.forEach(function(c){ids.push(parseInt(c.dataset.id))});
+  if(!ids.length){toast('Select tracks first','warning');return;}
+  await api('/api/tracks/queue',{method:'POST',body:JSON.stringify({track_ids:ids})});
+  ids.forEach(function(id){S.queuedIds.add(id)});
+  toast('Added '+ids.length+' to queue','success');
+  cbs.forEach(function(c){c.checked=false;c.disabled=true;var p=c.closest('label');if(p)p.classList.add('opacity-40');});
+  countSel();
+  api('/api/tracks?status=queued&limit=500').then(function(t){S.queuedTracks=t;syncQueueList();}).catch(function(){});
+}
+
+async function startQ(){try{var r=await api('/api/download/start',{method:'POST'});toast('Starting '+r.queued+' tracks','success');}catch(e){if(e.message.includes('No tracks'))toast('Queue empty','warning');else toast(e.message,'error');}}
+async function stopQ(){await api('/api/download/stop',{method:'POST'});toast('Stopped','warning');}
+async function clearQ(){try{await api('/api/tracks/queue',{method:'POST',body:JSON.stringify({reset:true})});S.queuedIds.clear();S.queuedTracks=[];syncQueueList();toast('Cleared','warning');}catch(e){}}
+
+async function openFile(id){try{await api('/api/tracks/'+id+'/open');}catch(e){toast(e.message,'error');}}
+
+async function showSettings(){
+  document.getElementById('settings-modal').classList.remove('hidden');
+  try{var c=await api('/api/config');document.getElementById('set-out').value=c.downloads.output_dir||'';document.getElementById('set-codec').value=c.audio.codec||'mp3';document.getElementById('set-bitrate').value=c.audio.mp3_bitrate||'320';document.getElementById('set-jobs').value=c.downloads.concurrent_jobs||4;}catch(e){}
+}
+function hideSettings(){document.getElementById('settings-modal').classList.add('hidden');}
+async function saveSettings(){
+  var u=[['downloads.output_dir',document.getElementById('set-out').value],['audio.codec',document.getElementById('set-codec').value],['audio.mp3_bitrate',document.getElementById('set-bitrate').value],['downloads.concurrent_jobs',parseInt(document.getElementById('set-jobs').value)]];
+  for(var i=0;i<u.length;i++)await api('/api/config',{method:'POST',body:JSON.stringify({key:u[i][0],value:u[i][1]})});
+  toast('Saved','success');document.getElementById('out-dir').textContent=document.getElementById('set-out').value;
+}
+
+connectWS();startRefresh();
+api('/api/config').then(function(c){document.getElementById('out-dir').textContent=c.downloads.output_dir||''}).catch(function(){});
+</script>
+</body>
+</html>
