@@ -1,51 +1,191 @@
-# YouPlumber — fast mass YouTube audio acquisition for DJs
+<p align="center">
+  <br>
+  <img src="https://img.shields.io/badge/python-3.10+-blue.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/version-0.1.0-purple.svg?style=for-the-badge" alt="Version">
+  <br><br>
+</p>
 
-A focused CLI for grabbing audio from YouTube channels, playlists, and searches
-in parallel. Built around `yt-dlp` + `ffmpeg`, tracks everything in SQLite,
-embeds DJ-friendly metadata, and writes directly to a folder of your choice.
+<h1 align="center">🎧 YouPlumber</h1>
 
-## Install
+<p align="center">
+  <strong>Mass YouTube audio acquisition for DJs — fast, parallel, beautiful.</strong>
+  <br>
+  Paste a channel/playlist link → fetch all tracks → tick what you want → download with one click.
+  <br><br>
+  <img src="https://img.shields.io/badge/CLI-ready-blueviolet?style=flat-square" alt="CLI">
+  <img src="https://img.shields.io/badge/Web_UI-FastAPI-009688?style=flat-square&logo=fastapi" alt="Web UI">
+  <img src="https://img.shields.io/badge/yt--dlp-powered-ff0000?style=flat-square&logo=youtube" alt="yt-dlp">
+  <img src="https://img.shields.io/badge/SQLite-database-003B57?style=flat-square&logo=sqlite" alt="SQLite">
+</p>
 
-```bash
-pip install -e .
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+**🚀 Parallel Downloads**  
+Multi-threaded worker pool rips through large playlists.  
+Configurable concurrency, auto-retry on failure.
+
+**🎛️ DJ-Ready Metadata**  
+BPM, Camelot key, artist, title — embedded directly  
+into every file via FFmpeg postprocessing.
+
+**🌐 Web UI + CLI**  
+Use the terminal for scripting, or the web dashboard  
+for quick interactive sessions.
+
+</td>
+<td width="50%">
+
+**📦 Flat Output**  
+No nested channel folders — all files land flat in  
+your chosen directory. Name template: `Title [id].ext`.
+
+**🔁 Auto-Resume**  
+Interrupted downloads resume. Stuck `downloading`  
+state is cleaned on server startup.
+
+**🕸️ WebSocket Live Progress**  
+Real-time speed, ETA, and progress bars pushed  
+to the browser every 300ms.
+
+</td>
+</tr>
+</table>
+
+<div align="center">
+  <br>
+  <img src="https://img.shields.io/badge/➕_add_source-6366f1?style=for-the-badge" alt="add">
+  <img src="https://img.shields.io/badge/✅_select_tracks-22c55e?style=for-the-badge" alt="select">
+  <img src="https://img.shields.io/badge/⬇️_download-3b82f6?style=for-the-badge" alt="download">
+  <img src="https://img.shields.io/badge/🎵_play-8b5cf6?style=for-the-badge" alt="play">
+  <br><br>
+</div>
+
+---
+
+## 🖼️ Web UI
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  🎧 YouPlumber                                   ● idle     │
+│  0 queued  0 active  5 done  142 MB               ⚙️        │
+├──────────────────────────────────────────────────────────────┤
+│  [ Paste YouTube link (channel, playlist, or search) ] [🔍] │
+├──────────────────────────────┬───────────────────────────────┤
+│  📋 Queue                    │  🕐 Recent                    │
+│                              │                               │
+│  ┌──────────────────────────┐│  ┌───────────────────────────┐│
+│  │ Artist - Track Name  45% ││  │ Track Name            ✓  ││
+│  │ ██████████████░░░░░░░    ││  │ Uploader · 4:30         ││
+│  └──────────────────────────┘│  │ 📁 Title [abc123].mp3    ││
+│                              │  └───────────────────────────┘│
+│  Track A                  ✓  │  ┌───────────────────────────┐│
+│  Track B             45% ◌   │  │ Track Name            ✓  ││
+│  Track C                  ⏳ │  │ ...                       ││
+│                              │                               │
+│  [▶ Start]  [⏹ Stop]  [🗑]  │                               │
+└──────────────────────────────┴───────────────────────────────┘
 ```
 
-Requires `ffmpeg` on PATH.
+The web UI runs on `http://localhost:8652` — paste a URL, tick tracks, download.
 
-## Quick start
+---
+
+## 📦 Installation
 
 ```bash
-# one-shot: add source, ingest, download
+# 1. Install ffmpeg (required for audio conversion)
+sudo apt install ffmpeg          # Debian/Ubuntu
+brew install ffmpeg              # macOS
+
+# 2. Install YouPlumber
+git clone https://github.com/debiddr5777/YouPlumber.git
+cd YouPlumber
+pip install -e .
+
+# 3. Launch the web UI
+youplumber serve --port 8652
+```
+
+---
+
+## 🚀 Quick Start
+
+### Web UI (recommended)
+
+```bash
+youplumber serve
+# → http://127.0.0.1:8652
+```
+
+1. Paste a YouTube channel, playlist, or search URL
+2. Click **Fetch**
+3. Tick the tracks you want
+4. Click **Add to Queue**
+5. Click **Start** — watch real-time progress
+
+### CLI
+
+```bash
+# One-shot: add + queue + download
 youplumber grab "https://www.youtube.com/@somechannel" --limit 20 --codec mp3
 
-# step by step
-youplumber add  "https://www.youtube.com/playlist?list=PLxxxx" --limit 50
+# Step by step
+youplumber add   "https://www.youtube.com/playlist?list=PLxxxx" --limit 50
 youplumber sources
-youplumber list --status new
+youplumber list  --status new
 youplumber queue --all
 youplumber download
 
-# search
-youplumber grab "ytsearch30:afro house 2024" --limit 30
+# Search
+youplumber grab "ytsearch30:afro house 2026" --limit 30
 ```
 
-## Configuration
+---
 
-`~/.config/youplumber/config.toml` (auto-created on first run):
+## 📟 CLI Reference
+
+| Command | Purpose |
+|---------|---------|
+| `youplumber add <url>` | Add a channel/playlist/video as a source |
+| `youplumber grab <url>` | One-shot add + queue + download |
+| `youplumber list` | Browse library tracks |
+| `youplumber sources` | List configured sources |
+| `youplumber queue` | Mark tracks for download |
+| `youplumber download` | Process the download queue |
+| `youplumber status` | Show library statistics |
+| `youplumber doctor` | Verify environment + DB |
+| `youplumber config` | Update settings |
+| `youplumber serve` | Launch the web UI |
+
+---
+
+## ⚙️ Configuration
+
+Auto-created at `~/.config/youplumber/config.toml`:
 
 ```toml
 [downloads]
-output_dir       = "~/.local/share/youplumber/downloads"
-concurrent_jobs  = 4
-concurrent_fragments = 8
-retries          = 5
-rate_limit       = ""         # e.g. "10M" for 10 MB/s cap
+output_dir          = "~/music"
+concurrent_jobs     = 4
+retries             = 5
+rate_limit          = ""            # e.g. "10M"
+folder_template     = ""            # flat output
+file_template       = "%(title)s [%(id)s].%(ext)s"
 
 [audio]
-codec            = "mp3"      # mp3 | wav | flac | aac | opus | best
-mp3_bitrate      = "320"
-embed_thumbnail  = true
-embed_metadata   = true
+codec               = "mp3"         # mp3 | wav | flac | aac | opus
+mp3_bitrate         = "320"
+
+[metadata]
+embed_thumbnail     = false
+embed_metadata      = true
 ```
 
 Override at runtime:
@@ -54,27 +194,36 @@ Override at runtime:
 youplumber config --concurrent-jobs 8 --codec flac --bitrate 320
 ```
 
-## Commands
+---
 
-| Command         | Purpose                                          |
-|-----------------|--------------------------------------------------|
-| `youplumber add`     | Add a channel / playlist / video as a source     |
-| `youplumber grab`    | One-shot add + ingest + download                 |
-| `youplumber list`    | Browse library (`--json` for machine use)        |
-| `youplumber sources` | List configured sources with counts              |
-| `youplumber queue`   | Mark tracks as queued for download               |
-| `youplumber download`| Process the download queue (parallel)            |
-| `youplumber doctor`  | Verify environment + DB                          |
-| `youplumber config`  | Update settings                                  |
+## 🗄️ Data Layout
 
-## Data layout
+```
+~/.config/youplumber/config.toml          # Settings
+~/.local/share/youplumber/library.db      # SQLite database (tracks, sources, jobs)
+```
 
-* `~/.local/share/youplumber/library.db` — tracks, sources, jobs
-* `~/.local/share/youplumber/downloads/<source_id>/<id>.<ext>` — staged files
-* `~/.config/youplumber/config.toml` — user settings
+Downloaded files land in your configured `output_dir` (default `~/music/`).
 
-## Notes
+---
 
-* Downloads are rate-limited only if you set `rate_limit`.
-* Failed tracks auto-retry; the queue picks them up on next `youplumber download`.
-* Run `youplumber download` repeatedly (cron/systemd) for unattended syncing.
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Audio extraction** | yt-dlp + FFmpeg |
+| **Metadata** | mutagen (ID3/FLAC/Vorbis) |
+| **Database** | SQLite (WAL mode) |
+| **CLI** | Click + Rich |
+| **Web server** | FastAPI + Uvicorn |
+| **WebSockets** | websockets |
+| **Templates** | Jinja2 + Tailwind CSS |
+| **Parallelism** | ThreadPoolExecutor |
+
+---
+
+<p align="center">
+  <sub>Built for DJs who need to move fast.</sub>
+  <br>
+  <sub>Copyright © 2026 · MIT License</sub>
+</p>
