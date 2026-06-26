@@ -127,7 +127,7 @@ def list_cmd(source: int | None, status: str | None, limit: int, as_json: bool) 
     console.print(table)
 
 
-@main.command()
+@main.command(name="sources")
 def sources_cmd() -> None:
     """List configured sources."""
     _, conn = _ctx_setup()
@@ -242,7 +242,7 @@ def download(workers: int | None, watch: bool) -> None:
 
 
 def _render_status(reporter: ProgressReporter, conn, total: int):
-    snap = {item.get("track_id"): item for item in reporter.snapshot()}
+    snap = reporter.snapshot()
     queued = conn.execute(
         "SELECT COUNT(*) c FROM tracks WHERE status IN ('queued','downloading')"
     ).fetchone()["c"]
@@ -288,7 +288,7 @@ def status() -> None:
     console.print(table)
 
 
-@main.command()
+@main.command(name="finalize")
 @click.option("--output", "output_dir", default=None,
               help="Destination folder. Defaults to <downloads>/library.")
 @click.option("--organize-by", default=None,
@@ -372,7 +372,7 @@ def show_config() -> None:
     console.print_json(data=cfg)
 
 
-@main.command()
+@main.command(name="config")
 @click.option("--concurrent-jobs", type=int, default=None)
 @click.option("--codec", default=None,
               type=click.Choice(["mp3", "wav", "flac", "aac", "opus"]))

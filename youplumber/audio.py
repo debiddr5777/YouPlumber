@@ -101,6 +101,7 @@ def _musical_to_camelot(musical: str) -> str | None:
 
 def loudness_lufs(path: Path) -> float | None:
     """Measure integrated loudness (ITU-R BS.1770) via ffmpeg's ebur128."""
+    text = ""
     try:
         out = subprocess.check_output(
             [
@@ -110,13 +111,13 @@ def loudness_lufs(path: Path) -> float | None:
             stderr=subprocess.STDOUT,
             timeout=120,
         )
+        text = out.decode("utf-8", errors="ignore")
     except subprocess.CalledProcessError as e:
         text = e.output.decode("utf-8", errors="ignore") if e.output else ""
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return None
 
     try:
-        text = e.output.decode("utf-8", errors="ignore")
         m = re.search(r"I:\s*(-?\d+\.?\d*)\s*LUFS", text)
         if m:
             return float(m.group(1))

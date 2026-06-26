@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="YouPlumber — Search YouTube and download audio directly to your PC. No install needed.">
+<title>YouPlumber — YouTube Audio Downloader</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎧</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-headphones"></i></div>
+      <div>
+        <h1>YouPlumber</h1>
+        <small>YouTube Audio Downloader</small>
+      </div>
+    </div>
+    <a href="https://github.com/debiddr5777/YouPlumber" target="_blank" class="gh-link">
+      <i class="fab fa-github"></i> View on GitHub
+    </a>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h2>Search. Select. Download.</h2>
+    <p>Search YouTube and download audio tracks directly to your PC. No installation, no sign-up — just music.</p>
+  </section>
+
+  <!-- Search -->
+  <section class="search-box">
+    <div class="search-bar">
+      <div class="input-wrap">
+        <i class="fas fa-magnifying-glass"></i>
+        <input id="search-input" class="search-input" placeholder='Search YouTube — e.g. "lofi beats", "trending house music 2026"' autofocus>
+      </div>
+      <button id="btn-search" class="btn btn-primary" onclick="doSearch()"><i class="fas fa-magnifying-glass"></i> Search</button>
+    </div>
+    <div class="status-bar">
+      <span id="status-dot" class="dot dot-idle"></span>
+      <span id="status-text">Idle</span>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="results" class="results card">
+    <div class="card-hd">
+      <div class="card-title">
+        <i class="fas fa-list"></i>
+        <span id="res-label">Results</span>
+        <span id="res-count" class="badge">0</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('results').style.display='none'"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div id="res-list" style="max-height:50vh;overflow-y:auto"></div>
+    <div class="r-actions">
+      <div class="sel-info">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="sel-all" class="r-check" onchange="toggleAll()" checked> Select all
+        </label>
+        <span id="sel-count" style="color:var(--text3)">0 selected</span>
+      </div>
+      <button class="btn btn-success btn-sm" onclick="downloadSelected()"><i class="fas fa-arrow-down"></i> Download Selected</button>
+    </div>
+  </section>
+
+  <!-- Download Queue -->
+  <section id="dl-section" class="dl-section card" style="display:none">
+    <div class="card-hd">
+      <div class="card-title"><i class="fas fa-arrow-down" style="color:var(--green)"></i> Downloads <span id="dl-count" class="badge">0</span></div>
+    </div>
+    <div id="dl-list"></div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="feat">
+      <i class="fas fa-bolt" style="color:var(--accent)"></i>
+      <h4>Instant Search</h4>
+      <p>Search YouTube right from the browser. No API keys or accounts needed.</p>
+    </div>
+    <div class="feat">
+      <i class="fas fa-arrow-down" style="color:var(--green)"></i>
+      <h4>Direct Download</h4>
+      <p>Audio files download straight to your PC. You choose where to save via your browser's download dialog.</p>
+    </div>
+    <div class="feat">
+      <i class="fas fa-shield-halved" style="color:var(--purple)"></i>
+      <h4>Privacy First</h4>
+      <p>Everything runs in your browser. No data is stored on any server. Fully open source.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>YouPlumber · <a href="https://github.com/debiddr5777/YouPlumber" target="_blank">GitHub</a> · MIT License · 2026</p>
+    <p style="margin-top:6px;font-size:10px;color:var(--text3)">For the full experience with parallel downloads, metadata tagging, and queue management, install the CLI/Web app.</p>
+  </footer>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

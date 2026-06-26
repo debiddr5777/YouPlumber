@@ -84,13 +84,15 @@ def normalize_entry(e: dict, source_id: int | None = None) -> dict:
 
 
 def channel_latest(channel_url: str, limit: int = 50) -> Iterator[dict]:
-    """Get latest uploads from a channel via /streams tab."""
-    # Try the /streams tab first, fall back to /videos
-    for tab in ("/streams", "/videos"):
+    """Get latest uploads from a channel."""
+    # Try /videos first (regular uploads), fall back to /streams
+    for tab in ("/videos", "/streams"):
         try:
             url = channel_url.rstrip("/") + tab
             info = fetch_info(url, limit=limit)
-            return iter_entries(info)
+            entries = list(iter_entries(info))
+            if entries:
+                return iter(entries)
         except (DownloadError, Exception):
             continue
     raise RuntimeError(f"Could not fetch channel {channel_url}")

@@ -11,7 +11,8 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .. import config as cfg
@@ -109,6 +110,7 @@ class ConfigUpdate(BaseModel):
 # ---------- progress broadcaster ----------
 
 async def _broadcast_progress():
+    global _ws_clients
     while True:
         await asyncio.sleep(0.3)
         if not _ws_clients:
@@ -121,7 +123,7 @@ async def _broadcast_progress():
             "stats": q.stats if q else {"ok": 0, "failed": 0, "total": 0, "done": 0},
         }
         dead: set[WebSocket] = set()
-        for ws in _ws_clients:
+        for ws in list(_ws_clients):
             try:
                 await ws.send_json(payload)
             except Exception:
@@ -141,6 +143,9 @@ def _stats() -> dict:
 # ---------- static / UI ----------
 
 UI_HTML = (Path(__file__).parent / "templates" / "index.html").resolve()
+STATIC_DIR = (Path(__file__).parent / "static").resolve()
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 @app.get("/")
@@ -264,6 +269,63 @@ async def sync_source(source_id: int, limit: int = 50):
     return {"source_id": source_id, "new_tracks": added}
 
 
+# --- youtube search ---
+
+class SearchBody(BaseModel):
+    query: str
+    limit: int = 20
+
+@app.post("/api/search")
+async def youtube_search(body: SearchBody):
+    """Search YouTube without creating a source. Returns raw results for preview."""
+    if not body.query.strip():
+        raise HTTPException(400, "Query cannot be empty")
+    try:
+        entries = list(sources.search(body.query.strip(), limit=body.limit))
+    except Exception as e:
+        raise HTTPException(400, f"Search failed: {e}")
+    results = []
+    for e in entries:
+        norm = sources.normalize_entry(e)
+        if norm["video_id"]:
+            results.append(norm)
+    return results
+
+
+@app.post("/api/search/add")
+async def search_add_tracks(body: dict):
+    """Add selected search results to the library and optionally queue them."""
+    conn = _get_conn()
+    tracks_data = body.get("tracks", [])
+    auto_queue = body.get("auto_queue", False)
+    if not tracks_data:
+        raise HTTPException(400, "No tracks provided")
+
+    # Create or reuse a 'search' source
+    query = body.get("query", "YouTube Search")
+    source_url = f"ytsearch:{query}"
+    source_id = db_module.upsert_source(conn, "search", query, source_url)
+    db_module.touch_source(conn, source_id)
+    conn.commit()
+
+    track_ids = []
+    for t in tracks_data:
+        t["source_id"] = source_id
+        if not t.get("video_id"):
+            continue
+        tid = db_module.upsert_track(conn, t)
+        track_ids.append(tid)
+    conn.commit()
+
+    queued = 0
+    if auto_queue and track_ids:
+        q = DownloadQueue(cfg.load_config(), conn)
+        queued = q.enqueue(track_ids)
+        conn.commit()
+
+    return {"source_id": source_id, "added": len(track_ids), "queued": queued}
+
+
 # --- tracks ---
 
 @app.get("/api/tracks")
@@ -281,6 +343,17 @@ async def list_tracks(
         rows = conn.execute(q, [f"%{search}%"] * 3 + [limit, offset]).fetchall()
     else:
         rows = db_module.list_tracks(conn, status=status, source_id=source_id, limit=limit, offset=offset)
+    return [dict(r) for r in rows]
+
+
+@app.get("/api/tracks/recent")
+async def recent_tracks(limit: int = 6):
+    """Return recently completed tracks."""
+    conn = _get_conn()
+    rows = conn.execute(
+        "SELECT * FROM tracks WHERE status='done' AND file_path IS NOT NULL "
+        "ORDER BY updated_at DESC LIMIT ?", (limit,)
+    ).fetchall()
     return [dict(r) for r in rows]
 
 
@@ -310,7 +383,7 @@ async def queue_tracks(body: QueueBody):
     if not ids:
         return {"queued": 0}
 
-    q = DownloadQueue({}, conn)
+    q = DownloadQueue(cfg.load_config(), conn)
     n = q.enqueue(ids)
     conn.commit()
     return {"queued": n}
@@ -386,13 +459,17 @@ async def stop_download():
 async def ws_progress(websocket: WebSocket):
     await websocket.accept()
     _ws_clients.add(websocket)
+    log.debug("ws client connected, total=%d", len(_ws_clients))
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
         pass
+    except Exception as e:
+        log.debug("ws error: %s", e)
     finally:
         _ws_clients.discard(websocket)
+        log.debug("ws client disconnected, total=%d", len(_ws_clients))
 
 
 # --- finalize ---
@@ -416,17 +493,6 @@ async def open_track_file(track_id: int):
     else:
         subprocess.Popen(["xdg-open", str(p.parent)])
     return {"opened": str(p.parent)}
-
-
-@app.get("/api/tracks/recent")
-async def recent_tracks(limit: int = 6):
-    """Return recently completed tracks."""
-    conn = _get_conn()
-    rows = conn.execute(
-        "SELECT * FROM tracks WHERE status='done' AND file_path IS NOT NULL "
-        "ORDER BY updated_at DESC LIMIT ?", (limit,)
-    ).fetchall()
-    return [dict(r) for r in rows]
 
 
 @app.post("/api/finalize")
