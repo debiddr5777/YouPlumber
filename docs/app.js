@@ -68,6 +68,7 @@ function renderResults(query){
       '<input type="checkbox" class="r-check res-cb" data-idx="'+i+'" checked onchange="countSel()">'+
       (thumb?'<img src="'+esc(thumb)+'" class="r-thumb" loading="lazy" onerror="this.style.display=\'none\'">':'')+
       '<div class="r-info"><div class="r-title">'+esc(title)+'</div><div class="r-meta">'+esc(channel)+(views?' · '+views:'')+(dur?' · '+dur:'')+'</div></div>'+
+      '<button class="btn-play-preview" title="Play Preview" onclick="event.stopPropagation();playPreview(\''+vid+'\', \''+esc(title).replace(/'/g,"\\'")+'\', \''+esc(channel).replace(/'/g,"\\'")+'\', \''+esc(thumb).replace(/'/g,"\\'")+'\')"><i class="fas fa-play"></i></button>'+
       '<button class="btn-dl" onclick="downloadSingle('+i+')"><i class="fas fa-arrow-down"></i> Download</button></div>';
   }).join('');
   countSel();
@@ -173,6 +174,58 @@ async function processDownload(entry){
 function sanitizeFilename(name){
   return (name||'audio').replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,' ').trim().slice(0,200)||'audio';
 }
+
+/* ===== Audio Player ===== */
+var audioEl = document.getElementById('html-audio');
+
+async function playPreview(vid, title, artist, thumb){
+  var player = document.getElementById('audio-player');
+  player.style.display = 'flex';
+  document.getElementById('player-title').textContent = title || 'Loading...';
+  document.getElementById('player-meta').textContent = artist || 'Fetching stream...';
+  var tImg = document.getElementById('player-thumb');
+  if(thumb){ tImg.src = thumb; tImg.style.display = ''; } else { tImg.style.display = 'none'; }
+  document.getElementById('play-icon').className = 'fas fa-spinner fa-spin';
+  audioEl.pause();
+  
+  try {
+    var data = await pipedFetch('/streams/'+vid);
+    var audioStreams = (data.audioStreams||[]).filter(function(s){return s.mimeType&&s.mimeType.indexOf('audio')===0;});
+    if(!audioStreams.length) throw new Error('No audio found');
+    audioStreams.sort(function(a,b){return (b.bitrate||0)-(a.bitrate||0);});
+    audioEl.src = audioStreams[0].url;
+    audioEl.play();
+    document.getElementById('player-meta').textContent = artist || 'Playing';
+    document.getElementById('play-icon').className = 'fas fa-pause';
+  } catch(e) {
+    document.getElementById('player-meta').textContent = 'Error: ' + e.message;
+    document.getElementById('play-icon').className = 'fas fa-play';
+    toast(e.message, 'err');
+  }
+}
+
+function togglePlay(){
+  if(audioEl.paused){ if(audioEl.src) audioEl.play(); document.getElementById('play-icon').className='fas fa-pause'; }
+  else{ audioEl.pause(); document.getElementById('play-icon').className='fas fa-play'; }
+}
+
+function closePlayer(){
+  audioEl.pause();
+  document.getElementById('audio-player').style.display='none';
+}
+
+function seekAudio(val){
+  if(!audioEl.duration) return;
+  audioEl.currentTime = (val/100) * audioEl.duration;
+}
+
+audioEl.addEventListener('timeupdate', function(){
+  if(!audioEl.duration) return;
+  document.getElementById('player-time').textContent = durF(Math.floor(audioEl.currentTime));
+  document.getElementById('player-dur').textContent = durF(Math.floor(audioEl.duration));
+  document.getElementById('player-seek').value = (audioEl.currentTime / audioEl.duration) * 100;
+});
+audioEl.addEventListener('ended', function(){ document.getElementById('play-icon').className='fas fa-play'; });
 
 /* ===== Init ===== */
 document.getElementById('search-input').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});

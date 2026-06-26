@@ -133,3 +133,45 @@ a{color:var(--accent);text-decoration:none}a:hover{color:var(--accent2)}
 /* Spinner */
 @keyframes spin{to{transform:rotate(360deg)}}
 .fa-spin{animation:spin 1s linear infinite}
+
+/* ===== Audio Player ===== */
+.audio-player {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--glass); backdrop-filter: blur(40px) saturate(1.8);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; z-index: 1000; box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
+  animation: slideUp .3s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.player-info { display: flex; align-items: center; gap: 12px; width: 30%; }
+.player-thumb { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; background: var(--bg3); }
+.player-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-meta { font-size: 11px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.player-btn {
+  background: transparent; border: none; color: var(--text);
+  font-size: 16px; cursor: pointer; transition: all var(--t);
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+}
+.player-btn:hover { background: var(--bg4); color: var(--accent); }
+.player-btn:active { transform: scale(0.9); }
+.player-timeline { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 500px; }
+.player-time { font-size: 11px; color: var(--text3); font-variant-numeric: tabular-nums; min-width: 35px; text-align: center; }
+.player-seek {
+  flex: 1; height: 4px; border-radius: 2px; background: var(--bg3);
+  -webkit-appearance: none; outline: none; cursor: pointer;
+}
+.player-seek::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+}
+.player-actions { width: 30%; display: flex; justify-content: flex-end; }
+.btn-play-preview {
+  background: rgba(48,209,88,.15); color: var(--green); border: none;
+  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--t); flex-shrink: 0; margin-right: 12px;
+}
+.btn-play-preview:hover { background: var(--green); color: #000; box-shadow: 0 0 15px rgba(48,209,88,.4); }

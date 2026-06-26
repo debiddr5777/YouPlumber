@@ -190,6 +190,7 @@ function renderResults(tracks,isSearch){
       '<input type="checkbox" class="result-checkbox res-cb" data-idx="'+i+'" data-id="'+(t.id||'')+'" data-vid="'+(vid||'')+'" checked onclick="event.stopPropagation();countSel()">'+
       (thumb?'<img src="'+esc(thumb)+'" class="result-thumb" loading="lazy" onerror="this.style.display=\'none\'">':'')+
       '<div class="result-info"><div class="result-title">'+esc(t.title||'Untitled')+'</div><div class="result-meta">'+esc(t.uploader||t.channel||'')+'&nbsp;·&nbsp;'+dur+'</div></div>'+
+      '<button class="btn-play-preview" title="Play Preview" onclick="event.stopPropagation();playPreview(\''+vid+'\', \''+esc(t.title||'').replace(/'/g,"\\'")+'\', \''+esc(t.uploader||t.channel||'').replace(/'/g,"\\'")+'\', \''+esc(thumb).replace(/'/g,"\\'")+'\')"><i class="fas fa-play"></i></button>'+
       '<span class="result-status">'+(t.status||'new')+'</span></div>';
   }).join('');
   countSel();
@@ -268,6 +269,71 @@ async function fetchSessions(){
     }).join('');
   }catch(_){}
 }
+
+/* ===== Audio Player ===== */
+var PIPED_INSTANCES = ['https://pipedapi.kavin.rocks','https://pipedapi.r4fo.com','https://pipedapi.adminforge.de'];
+var currentInstance = 0;
+var audioEl = document.getElementById('html-audio');
+
+async function pipedFetch(path){
+  for(var i=0;i<PIPED_INSTANCES.length;i++){
+    var idx=(currentInstance+i)%PIPED_INSTANCES.length;
+    try{
+      var r=await fetch(PIPED_INSTANCES[idx]+path);
+      if(r.ok){currentInstance=idx;return await r.json();}
+    }catch(_){}
+  }
+  throw new Error('Could not fetch preview stream.');
+}
+
+async function playPreview(vid, title, artist, thumb){
+  var player = document.getElementById('audio-player');
+  player.style.display = 'flex';
+  document.getElementById('player-title').textContent = title || 'Loading...';
+  document.getElementById('player-meta').textContent = artist || 'Fetching stream...';
+  var tImg = document.getElementById('player-thumb');
+  if(thumb){ tImg.src = thumb; tImg.style.display = ''; } else { tImg.style.display = 'none'; }
+  document.getElementById('play-icon').className = 'fas fa-spinner fa-spin';
+  audioEl.pause();
+  
+  try {
+    var data = await pipedFetch('/streams/'+vid);
+    var audioStreams = (data.audioStreams||[]).filter(function(s){return s.mimeType&&s.mimeType.indexOf('audio')===0;});
+    if(!audioStreams.length) throw new Error('No audio found');
+    audioStreams.sort(function(a,b){return (b.bitrate||0)-(a.bitrate||0);});
+    audioEl.src = audioStreams[0].url;
+    audioEl.play();
+    document.getElementById('player-meta').textContent = artist || 'Playing';
+    document.getElementById('play-icon').className = 'fas fa-pause';
+  } catch(e) {
+    document.getElementById('player-meta').textContent = 'Error: ' + e.message;
+    document.getElementById('play-icon').className = 'fas fa-play';
+    toast(e.message, 'error');
+  }
+}
+
+function togglePlay(){
+  if(audioEl.paused){ if(audioEl.src) audioEl.play(); document.getElementById('play-icon').className='fas fa-pause'; }
+  else{ audioEl.pause(); document.getElementById('play-icon').className='fas fa-play'; }
+}
+
+function closePlayer(){
+  audioEl.pause();
+  document.getElementById('audio-player').style.display='none';
+}
+
+function seekAudio(val){
+  if(!audioEl.duration) return;
+  audioEl.currentTime = (val/100) * audioEl.duration;
+}
+
+audioEl.addEventListener('timeupdate', function(){
+  if(!audioEl.duration) return;
+  document.getElementById('player-time').textContent = durF(Math.floor(audioEl.currentTime));
+  document.getElementById('player-dur').textContent = durF(Math.floor(audioEl.duration));
+  document.getElementById('player-seek').value = (audioEl.currentTime / audioEl.duration) * 100;
+});
+audioEl.addEventListener('ended', function(){ document.getElementById('play-icon').className='fas fa-play'; });
 
 /* ===== Init ===== */
 connectWS();startRefresh();

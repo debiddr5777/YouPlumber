@@ -119,10 +119,33 @@
   </div>
 
   <!-- Footer -->
-  <footer class="app-footer">
+  <footer class="app-footer" style="padding-bottom: 80px;">
     <span>Output → <span id="out-dir" style="font-family:monospace"></span></span>
   </footer>
 
+</div>
+
+<!-- Audio Player (Fixed Bottom) -->
+<div id="audio-player" class="audio-player" style="display:none">
+  <div class="player-info">
+    <img id="player-thumb" class="player-thumb" src="" alt="thumbnail" style="display:none">
+    <div>
+      <div id="player-title" class="player-title">No track playing</div>
+      <div id="player-meta" class="player-meta">—</div>
+    </div>
+  </div>
+  <div class="player-controls">
+    <button class="player-btn" onclick="togglePlay()"><i id="play-icon" class="fas fa-play"></i></button>
+    <div class="player-timeline">
+      <span id="player-time" class="player-time">0:00</span>
+      <input type="range" id="player-seek" class="player-seek" value="0" min="0" max="100" step="0.1" oninput="seekAudio(this.value)">
+      <span id="player-dur" class="player-time">0:00</span>
+    </div>
+  </div>
+  <div class="player-actions">
+    <button class="player-btn btn-sm" onclick="closePlayer()" title="Close Player"><i class="fas fa-times"></i></button>
+  </div>
+  <audio id="html-audio" style="display:none"></audio>
 </div>
 
 <!-- Settings Modal -->
