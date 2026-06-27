@@ -12,6 +12,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, FileResponse
+import yt_dlp
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -324,6 +325,31 @@ async def search_add_tracks(body: dict):
         conn.commit()
 
     return {"source_id": source_id, "added": len(track_ids), "queued": queued}
+
+
+@app.get("/api/stream/{video_id}")
+async def get_stream_url(video_id: str):
+    """Extract direct audio URL via yt-dlp for frontend previews."""
+    try:
+        ydl_opts = {
+            "quiet": True,
+            "no_warnings": True,
+            "extract_flat": False,
+            "format": "bestaudio/best",
+        }
+        # Run in a thread to avoid blocking FastAPI
+        def _extract():
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
+                return {"url": info.get("url")}
+                
+        loop = asyncio.get_running_loop()
+        res = await loop.run_in_executor(None, _extract)
+        if not res.get("url"):
+            raise HTTPException(404, "Could not extract stream URL")
+        return res
+    except Exception as e:
+        raise HTTPException(500, str(e))
 
 
 # --- tracks ---

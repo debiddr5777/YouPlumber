@@ -271,26 +271,7 @@ async function fetchSessions(){
 }
 
 /* ===== Audio Player ===== */
-var PIPED_INSTANCES = [
-  'https://api.piped.projectsegfau.lt',
-  'https://pipedapi.kavin.rocks',
-  'https://piped-api.lunar.icu',
-  'https://piped-api.garudalinux.org',
-  'https://pipedapi.adminforge.de'
-];
-var currentInstance = 0;
 var audioEl = document.getElementById('html-audio');
-
-async function pipedFetch(path){
-  for(var i=0;i<PIPED_INSTANCES.length;i++){
-    var idx=(currentInstance+i)%PIPED_INSTANCES.length;
-    try{
-      var r=await fetch(PIPED_INSTANCES[idx]+path);
-      if(r.ok){currentInstance=idx;return await r.json();}
-    }catch(_){}
-  }
-  throw new Error('Could not fetch preview stream.');
-}
 
 async function playPreview(vid, title, artist, thumb){
   var player = document.getElementById('audio-player');
@@ -303,11 +284,11 @@ async function playPreview(vid, title, artist, thumb){
   audioEl.pause();
   
   try {
-    var data = await pipedFetch('/streams/'+vid);
-    var audioStreams = (data.audioStreams||[]).filter(function(s){return s.mimeType&&s.mimeType.indexOf('audio')===0;});
-    if(!audioStreams.length) throw new Error('No audio found');
-    audioStreams.sort(function(a,b){return (b.bitrate||0)-(a.bitrate||0);});
-    audioEl.src = audioStreams[0].url;
+    // Hit our local backend endpoint which uses yt-dlp to extract the raw audio stream URL
+    var data = await api('/api/stream/'+vid);
+    if(!data.url) throw new Error('No audio found');
+    
+    audioEl.src = data.url;
     audioEl.play();
     document.getElementById('player-meta').textContent = artist || 'Playing';
     document.getElementById('play-icon').className = 'fas fa-pause';
