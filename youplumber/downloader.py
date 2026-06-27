@@ -33,11 +33,11 @@ def _ydl_opts_for_track(cfg: dict, track: dict) -> tuple[dict, Path, str]:
     codec = audio.get("codec", "mp3")
     target_ext = CODEC_MAP.get(codec, ("mp3", "mp3"))[1] or "%(ext)s"
 
-    if track.get("source_kind") == "playlist":
-        import re
-        sub = re.sub(r'[\\/:*?"<>|]+', '_', track.get("source_name", "Playlist")).strip()
-        out_dir = out_dir / sub
-        out_dir.mkdir(parents=True, exist_ok=True)
+    artist = track.get("uploader") or track.get("channel") or "Unknown Artist"
+    import re
+    artist_safe = re.sub(r'[\\/:*?"<>|]+', '_', artist).strip()
+    out_dir = out_dir / artist_safe
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     folder_tpl = dl.get("folder_template", "")
     file_tpl = dl.get("file_template", "%(title)s.%(ext)s")
