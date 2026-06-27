@@ -45,6 +45,13 @@
         <i class="fas fa-link"></i>
         <input id="main-input" class="search-input" placeholder="Paste a YouTube URL (channel, playlist, or video)" autofocus onkeydown="if(event.key==='Enter')mainAction()">
       </div>
+      <select id="fetch-limit" style="background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;padding:0 12px;outline:none;cursor:pointer">
+        <option value="10">10 items</option>
+        <option value="20">20 items</option>
+        <option value="50" selected>50 items</option>
+        <option value="100">100 items</option>
+        <option value="9999">All items</option>
+      </select>
       <button id="btn-action" class="btn btn-primary" onclick="mainAction()"><i class="fas fa-bolt"></i> Go</button>
     </div>
   </section>
@@ -61,9 +68,12 @@
     </div>
     <div id="results-list" class="card-body flush" style="max-height:40vh;overflow-y:auto"></div>
     <div id="result-actions" class="result-actions">
-      <div class="select-info">
+      <div class="select-info" style="display:flex; gap:16px; align-items:center;">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
           <input type="checkbox" id="sel-all" class="result-checkbox" onchange="toggleAll()"> Select all
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-secondary)">
+          <input type="checkbox" id="filter-15m" class="result-checkbox" checked onchange="applyFilters()"> &lt;15 mins only
         </label>
         <span id="sel-count" style="color:var(--text-tertiary)">0 selected</span>
       </div>

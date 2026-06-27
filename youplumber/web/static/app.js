@@ -154,7 +154,8 @@ async function mainAction(){
 async function fetchURL(url){
   var b=document.getElementById('btn-action');b.disabled=true;b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Fetching…';
   try{
-    var r=await api('/api/sources',{method:'POST',body:JSON.stringify({url:url,limit:100,name:null})});
+    var limit = parseInt(document.getElementById('fetch-limit').value) || 50;
+    var r=await api('/api/sources',{method:'POST',body:JSON.stringify({url:url,limit:limit,name:null})});
     sourceId=r.source_id;
     document.getElementById('result-label').textContent=r.name||'Results';
     document.getElementById('result-count').textContent=r.tracks_added+' track'+(r.tracks_added===1?'':'s');
@@ -168,7 +169,8 @@ async function fetchURL(url){
 async function doSearch(query){
   var b=document.getElementById('btn-action');b.disabled=true;b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Searching…';
   try{
-    var results=await api('/api/search',{method:'POST',body:JSON.stringify({query:query,limit:20})});
+    var limit = parseInt(document.getElementById('fetch-limit').value) || 20;
+    var results=await api('/api/search',{method:'POST',body:JSON.stringify({query:query,limit:limit})});
     S.searchResults=results;
     document.getElementById('result-label').textContent='Search: '+query;
     document.getElementById('result-count').textContent=results.length+' result'+(results.length===1?'':'s');
@@ -177,12 +179,34 @@ async function doSearch(query){
   b.disabled=false;b.innerHTML='<i class="fas fa-bolt"></i> Go';
 }
 
-function renderResults(tracks,isSearch){
+window.currentRenderTracks = null;
+window.currentRenderIsSearch = false;
+
+function applyFilters() {
+  if (window.currentRenderTracks) {
+    renderResults(window.currentRenderTracks, window.currentRenderIsSearch, true);
+  }
+}
+
+function renderResults(tracks,isSearch, fromFilter){
+  if(!fromFilter) {
+    window.currentRenderTracks = tracks;
+    window.currentRenderIsSearch = isSearch;
+  }
   var panel=document.getElementById('results-panel');panel.style.display='';
   var list=document.getElementById('results-list');
   document.getElementById('btn-add-q').dataset.search=isSearch?'1':'0';
-  if(!tracks.length){list.innerHTML='<div class="empty-state"><p>No results found</p></div>';return;}
-  list.innerHTML=tracks.map(function(t,i){
+
+  var filter15m = document.getElementById('filter-15m').checked;
+  var displayTracks = tracks.filter(function(t) {
+    var title = t.title || 'Untitled';
+    if (title === 'Untitled' && !t.duration) return false;
+    if (filter15m && t.duration > 900) return false;
+    return true;
+  });
+
+  if(!displayTracks.length){list.innerHTML='<div class="empty-state"><p>No results found matching filters</p></div>';return;}
+  list.innerHTML=displayTracks.map(function(t,i){
     var vid=isSearch?t.video_id:t.video_id||t.id;
     var dur=durF(t.duration);
     var thumb=t.thumbnail||'';
