@@ -1,8 +1,11 @@
 /* YouPlumber Standalone — Browser-based YouTube Audio Downloader */
 
+/* ===== Audio Player & API ===== */
 var PIPED_INSTANCES = [
+  'https://api.piped.projectsegfau.lt',
   'https://pipedapi.kavin.rocks',
-  'https://pipedapi.r4fo.com',
+  'https://piped-api.lunar.icu',
+  'https://piped-api.garudalinux.org',
   'https://pipedapi.adminforge.de'
 ];
 var currentInstance = 0;
@@ -36,14 +39,29 @@ async function pipedFetch(path){
 /* ===== Search ===== */
 async function doSearch(){
   var q=document.getElementById('search-input').value.trim();
-  if(!q){toast('Type a search query','warn');return;}
+  if(!q){toast('Type a search query or URL','warn');return;}
   var btn=document.getElementById('btn-search');
   btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Searching…';
   document.getElementById('status-text').textContent='Searching…';
   document.getElementById('status-dot').className='dot dot-busy';
   try{
-    var data=await pipedFetch('/search?q='+encodeURIComponent(q)+'&filter=videos');
-    searchResults=(data.items||data).filter(function(i){return i.type==='stream'||i.url;}).slice(0,20);
+    // Check if it's a direct URL
+    var videoIdMatch = q.match(/(?:v=|\/)([0-9A-Za-z_-]{11})(?:\?|&|$)/);
+    if(videoIdMatch){
+      var vid = videoIdMatch[1];
+      var data = await pipedFetch('/streams/'+vid);
+      searchResults = [{
+        url: '/watch?v='+vid,
+        title: data.title,
+        duration: data.duration,
+        thumbnail: data.thumbnailUrl,
+        uploaderName: data.uploader,
+        views: data.views
+      }];
+    } else {
+      var data=await pipedFetch('/search?q='+encodeURIComponent(q)+'&filter=videos');
+      searchResults=(data.items||data).filter(function(i){return i.type==='stream'||i.url;}).slice(0,20);
+    }
     renderResults(q);
   }catch(e){toast(e.message,'err');}
   btn.disabled=false;btn.innerHTML='<i class="fas fa-magnifying-glass"></i> Search';

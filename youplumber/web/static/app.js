@@ -271,7 +271,13 @@ async function fetchSessions(){
 }
 
 /* ===== Audio Player ===== */
-var PIPED_INSTANCES = ['https://pipedapi.kavin.rocks','https://pipedapi.r4fo.com','https://pipedapi.adminforge.de'];
+var PIPED_INSTANCES = [
+  'https://api.piped.projectsegfau.lt',
+  'https://pipedapi.kavin.rocks',
+  'https://piped-api.lunar.icu',
+  'https://piped-api.garudalinux.org',
+  'https://pipedapi.adminforge.de'
+];
 var currentInstance = 0;
 var audioEl = document.getElementById('html-audio');
 
