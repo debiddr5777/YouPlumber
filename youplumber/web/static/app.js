@@ -154,7 +154,7 @@ async function mainAction(){
 async function fetchURL(url){
   var b=document.getElementById('btn-action');b.disabled=true;b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Fetching…';
   try{
-    var limit = parseInt(document.getElementById('fetch-limit').value) || 50;
+    var limit = parseInt(document.getElementById('fetch-limit').value) || 10;
     var r=await api('/api/sources',{method:'POST',body:JSON.stringify({url:url,limit:limit,name:null})});
     sourceId=r.source_id;
     document.getElementById('result-label').textContent=r.name||'Results';
