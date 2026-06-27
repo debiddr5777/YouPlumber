@@ -33,6 +33,12 @@ def _ydl_opts_for_track(cfg: dict, track: dict) -> tuple[dict, Path, str]:
     codec = audio.get("codec", "mp3")
     target_ext = CODEC_MAP.get(codec, ("mp3", "mp3"))[1] or "%(ext)s"
 
+    if track.get("source_kind") == "playlist":
+        import re
+        sub = re.sub(r'[\\/:*?"<>|]+', '_', track.get("source_name", "Playlist")).strip()
+        out_dir = out_dir / sub
+        out_dir.mkdir(parents=True, exist_ok=True)
+
     folder_tpl = dl.get("folder_template", "")
     file_tpl = dl.get("file_template", "%(title)s.%(ext)s")
     if folder_tpl and folder_tpl.strip():
@@ -248,7 +254,9 @@ class DownloadQueue:
             if self._stop.is_set():
                 return
             tracks = list(self.conn.execute(
-                "SELECT * FROM tracks WHERE status='queued' ORDER BY id LIMIT ?",
+                "SELECT t.*, s.name as source_name, s.kind as source_kind "
+                "FROM tracks t LEFT JOIN sources s ON t.source_id = s.id "
+                "WHERE t.status='queued' ORDER BY t.id LIMIT ?",
                 (workers,),
             ))
             for t in tracks:
